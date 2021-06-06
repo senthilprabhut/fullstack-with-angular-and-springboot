@@ -8,4 +8,10 @@ import { Component } from '@angular/core';
 export class AppComponent {
   title = 'todo';
   message = "Welcome to Angular!"
+
+  constructor() {}
+
+  ngOnInit(): void {
+    console.log("> Calling AppComponent.ngOnInit()...")
+  }  
 }

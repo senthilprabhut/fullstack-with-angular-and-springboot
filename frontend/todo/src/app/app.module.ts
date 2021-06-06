@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http'; // Required for OAuth2
+import { OAuthModule } from 'angular-oauth2-oidc'; // Required for OAuth2. Install using "npm i angular-oauth2-oidc --save"
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -14,7 +16,7 @@ import { LogoutComponent } from './logout/logout.component';
 
 @NgModule({
   declarations: [
-    AppComponent,
+    AppComponent,  
     WelcomeComponent,
     LoginComponent,
     ErrorComponent,
@@ -26,7 +28,9 @@ import { LogoutComponent } from './logout/logout.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    FormsModule
+    FormsModule,
+    HttpClientModule,
+    OAuthModule.forRoot()    
   ],
   providers: [],
   bootstrap: [AppComponent]

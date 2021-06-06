@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HardcodedAuthService } from '../service/hardcoded-auth.service';
+import { OAuthService } from 'angular-oauth2-oidc';
 
 @Component({
   selector: 'app-logout',
@@ -8,10 +8,28 @@ import { HardcodedAuthService } from '../service/hardcoded-auth.service';
 })
 export class LogoutComponent implements OnInit {
 
-  constructor(private hardcodedAuthService: HardcodedAuthService) { }
+  constructor(private oauthService: OAuthService) { }
 
+
+  /**
+   * Logout of the application. Revokes the access token
+   * and initiates a complete logout.
+   */  
   ngOnInit(): void {
-    this.hardcodedAuthService.logout();
+    console.log("> Calling LogoutComponent.ngOnInit()...")
+    if (this.oauthService.hasValidAccessToken()) {
+      this.oauthService.revokeTokenAndLogout().catch(
+
+        // This takes care of the case when revoking a token fails
+        // because its already invalid. So this makes sure that we
+        // still log out of the application and session cleanup is
+        // done
+        (error:any) => {
+          console.log("> Calling just logout...")
+          this.oauthService.logOut();
+        }
+      )
+    }
   }
 
 }

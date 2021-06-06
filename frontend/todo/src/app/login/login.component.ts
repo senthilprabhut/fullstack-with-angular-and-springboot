@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { filter } from 'rxjs/operators'; 
 import { Router } from '@angular/router';
-import { HardcodedAuthService } from '../service/hardcoded-auth.service';
+import { OAuthService } from 'angular-oauth2-oidc';
+import { oauthConfig } from '../oauth-config.model';
 
 @Component({
   selector: 'app-login',
@@ -14,21 +16,57 @@ export class LoginComponent implements OnInit {
   errorMessage = 'Invalid Credentials'
   invalidLogin = false
 
-  // Router - dependency injection
   constructor(private router: Router,
-    private hardcodedAuthService: HardcodedAuthService) { }
+    private oauthService: OAuthService) { 
+
+      // Use setStorage to use sessionStorage or another implementation of the TS-type Storage
+      // instead of localStorage
+      this.oauthService.setStorage(sessionStorage);
+
+      // set to true, to receive also an id_token via OpenId Connect (OIDC) in addition to the
+      // OAuth2-based access_token
+      this.oauthService.oidc = true; // ID_Token      
+
+      this.oauthService.showDebugInformation = true;
+    }
 
   ngOnInit(): void {
+    console.log("> Calling LoginComponent.ngOnInit()...")
+
+    // configure oauth
+    this.oauthService.configure(oauthConfig);
+    this.oauthService.loadDiscoveryDocument()
+    .then((doc) => {
+      console.log("> In discovery doc load success")
+      this.oauthService.tryLoginCodeFlow({})      
+    });  
+
+    // subscribe to token events
+    this.oauthService.events
+    .pipe(filter((e: any) => {
+      return e.type === 'token_received';
+    }))
+    .subscribe(() => {
+      console.log("Redirect to Welcome page");
+      this.router.navigate(['welcome']);   
+    });
+
+    // this.oauthService.events.subscribe(({ type }: OAuthEvent) => {
+    //   switch (type) {
+    //     case 'token_received':
+    //       this.router.navigate(['welcome']);
+    //       break;
+    //     }
+    // });    
   }
 
-  handleLogin() {
-    if(this.hardcodedAuthService.authenticate(this.username,this.password)) {
-      // Redirect to Welcome page
-      this.router.navigate(['welcome', this.username])
-      this.invalidLogin=false
-    } else {
-      this.invalidLogin=true
-    }
-    console.log(this.invalidLogin);
+  login() {
+    this.oauthService.initLoginFlow();
   }
+
+  // private handleNewToken() {
+    // this.decodedAccessToken = this.oauthService.getAccessToken();
+    // this.decodedIDToken = this.oauthService.getIdToken();
+
+  // }  
 }
