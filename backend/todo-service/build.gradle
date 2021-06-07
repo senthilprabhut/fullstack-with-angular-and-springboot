@@ -1,0 +1,273 @@
+plugins {
+	id 'org.springframework.boot' version '2.5.0'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id "com.gorylenko.gradle-git-properties" version "2.3.1"
+	id "com.github.spotbugs" version "4.7.1"
+	id 'java'
+	id 'checkstyle'
+	id 'jacoco'
+}
+
+group = 'org.dev.todo'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('springCloudVersion', "2020.0.3")
+	set('testcontainersVersion', "1.15.3")
+}
+
+configurations {
+	liquibase
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.testcontainers:testcontainers-bom:${testcontainersVersion}"
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.liquibase:liquibase-core'
+	implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
+
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+	runtimeOnly 'org.postgresql:postgresql'
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.10.1' // https://find-sec-bugs.github.io/
+
+	// Liquibase Task Dependencies
+	liquibase 'org.liquibase:liquibase-core'
+	liquibase 'org.liquibase.ext:liquibase-hibernate5:3.6'
+	liquibase 'ch.qos.logback:logback-classic'  //Required for liquibase diffLog
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.testcontainers:postgresql'
+}
+
+/*
+ * -------------------------------
+ * Building and Packaging
+ * -------------------------------
+ */
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+	options.fork = true
+	options.deprecation = true
+	options.compilerArgs += ["-Xlint:unchecked"]
+}
+
+test {
+	useJUnitPlatform()
+	maxHeapSize = "2g"
+	reports {
+		junitXml.enabled = true
+		html.enabled = true
+		reports.junitXml.destination = file("$buildDir/reports/unittest")
+		reports.html.destination = file("$buildDir/reports/unittest")
+	}
+}
+
+/*
+ * -------------------------------
+ * Spotbugs, Checkstyle and Jacoco
+ * -------------------------------
+ */
+spotbugs {
+	toolVersion = '4.2.3' // Supports JDK 16
+	reportsDir = file("$project.buildDir/reports/spotbugs")
+	excludeFilter = file("${project.rootDir}/gradle/spotbugs/spotbugs-exclude.xml")
+	ignoreFailures = project.findProperty('ignoreBugs') != null
+	showProgress = true
+	effort = "max"
+	reportLevel = 'medium'
+}
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask) { spotbugsTask ->
+	reports {
+		xml.enabled = false
+		html {
+			enabled = true
+			destination = file("$project.buildDir/reports/spotbugs/$spotbugsTask.name-output.html")
+			//stylesheet = 'fancy-hist.xsl'
+		}
+	}
+}
+
+checkstyle {
+	config = project.resources.text.fromFile("gradle/checkstyle/google-checkstyle-with-header-check.xml")
+	reportsDir = file("$project.buildDir/reports/checkstyle")
+	configProperties = [
+			'checkstyle.header.file': rootProject.file('gradle/checkstyle/checkstyle-header.txt'),
+			'org.checkstyle.google.suppressionfilter.config':  rootProject.file('gradle/checkstyle/checkstyle-suppressions.xml'),
+	]
+	showViolations = true
+	ignoreFailures = false
+}
+tasks.withType(Checkstyle) {
+	reports {
+		xml.enabled false
+		html.enabled true
+		html.stylesheet project.resources.text.fromFile('gradle/checkstyle/checkstyle-noframes-severity-sorted.xsl')
+	}
+}
+
+
+def coverageSourceDirs = ['src/main/java']
+def coverageReportDir = project.buildDir.absolutePath + '/reports/coverage-reports'
+def jacocoExecDataFile = coverageReportDir + '/jacocoUnit.exec'
+def classpathDumpsDir = coverageReportDir + '/utClasspathDumps'
+
+jacoco {
+	reportsDirectory = file(coverageReportDir)
+}
+
+jacocoTestReport {
+	group = "Reporting"
+	description = "Generate Jacoco coverage reports"
+
+	sourceDirectories.from(files(coverageSourceDirs))
+	additionalSourceDirs.from(files(coverageSourceDirs))
+	executionData.from(files(jacocoExecDataFile))
+
+	reports {
+		xml.enabled false
+		csv.enabled false
+		html.enabled true
+		html.destination file(coverageReportDir + "/html")
+	}
+
+	// tests are required to run before generating the report
+	if (project.tasks.findByName("test")) {
+		Test test = (Test) project.tasks.findByName("test")
+		dependsOn test
+	}
+}
+
+// Generates a coverage report after the tests are complete
+project.tasks.findByName("test").finalizedBy(jacocoTestReport)
+
+// configure unit test jacoco integration
+test {
+	jacoco {
+		destinationFile = file(jacocoExecDataFile)
+		classDumpDir = file(classpathDumpsDir)
+	}
+}
+
+/*
+ * ----------
+ * Liquibase
+ * ----------
+ */
+// Generate diff changelog using command ./gradlew liquibaseDiffChangelog
+def diffLog = "$projectDir/src/main/resources/db/changelog/liquibase-changelog.xml"
+task liquibaseDiffChangelog(type: JavaExec) {
+	group = "liquibase"
+
+	classpath configurations.liquibase
+	classpath sourceSets.main.runtimeClasspath
+	main = "liquibase.integration.commandline.Main"
+
+	args "--url=jdbc:postgresql://localhost:5432/todo"
+	args "--username=postgres"
+	args "--password=password"
+	args "--changeLogFile=" + diffLog
+	args "--referenceUrl=hibernate:spring:org.dev.todo.todoservice.persistence.entity?dialect=org.dev.jpa.hibernate.CustomPostgresDialect&" +
+			"hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&" +
+			"hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy"
+	args "--referenceDriver=liquibase.ext.hibernate.database.connection.HibernateDriver"
+	args "diffChangeLog"
+}
+
+
+/*
+ * -------
+ * Docker
+ * -------
+ */
+def stageDir =  "$buildDir/docker"
+def buildNumber = getBuildNumber()
+def changeset = getChangeset()
+def dockerImageName = getDockerContainerName() + ':' + buildNumber
+def context = rootProject.projectDir.absolutePath
+
+// Use `gradle dockerBuild` to create an image locally for development, or
+// Use `gradle -PdockerRegistry=registry_name -PbuildTag=build_number dockerPush` to build and push an image to a repository
+task dockerBuild(type: Exec) {
+	// Copy the required files into the stage directory
+	doFirst {
+		copy {
+			from fileTree(dir: 'docker', includes: ['Dockerfile', 'entrypoint.sh', 'log4j2.xml'])
+			into stageDir
+		}
+	}
+	project.logger.lifecycle('container name: ' + dockerImageName);
+	project.logger.lifecycle('changeset: ' + changeset);
+
+	commandLine 'docker', 'build', '--file', "${stageDir}/Dockerfile", '--tag', "${dockerImageName}", "${context}", "--build-arg", "COMMIT_ID=${changeset}"
+}
+dockerBuild.dependsOn = ['clean']
+
+task dockerPush(type: Exec, dependsOn: dockerBuild) {
+	commandLine "docker", "push", "${dockerImageName}"
+}
+
+// tag to use on the container.
+def getBuildNumber() {
+	try {
+		// buildTag property is passed in from the Jenkins build scripts. If provided, use it.
+		def buildNumber = findProperty("buildTag")
+		if (buildNumber == null || buildNumber.trim().isEmpty()) {
+			buildNumber = "latest"
+		}
+		return buildNumber.toString().trim()
+	} catch (Exception e) {
+		return 'latest'
+	}
+}
+
+// get changeset
+def getChangeset() {
+	if (project.hasProperty('changeset')) {
+		return project.property('changeset').toString().trim()
+	}
+
+	def stdout = new ByteArrayOutputStream()
+	exec {
+		commandLine 'git', 'rev-parse', 'HEAD'
+		standardOutput = stdout
+	}
+	return stdout.toString().trim()
+}
+
+// get the container name - use the docker registry name if it was provided
+def getDockerContainerName() {
+	def containerName = "${jar.archiveBaseName.get()}"
+	if (project.hasProperty('dockerRegistry')) {
+		def dockerRegistry = project.property('dockerRegistry').toString().trim()
+		if (!dockerRegistry.endsWith('/')) {
+			dockerRegistry += '/'
+		}
+		containerName = dockerRegistry + containerName
+	}
+	return containerName
+}
