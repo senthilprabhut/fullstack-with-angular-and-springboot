@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { OAuthService } from 'angular-oauth2-oidc';
+import { WelcomeDataService } from '../service/data/welcome-data.service';
 
 @Component({
   selector: 'app-welcome',
@@ -13,10 +14,16 @@ export class WelcomeComponent implements OnInit {
 
   // Activated Route - get the currently active route
   constructor(private route:ActivatedRoute,
+    private service:WelcomeDataService,
     private oauthService: OAuthService) { }
 
   ngOnInit(): void {
     console.log(this.route.snapshot.params['name'])
+  }
+
+  public getWelcomeMessage() {
+    //console.log("get welcome message");
+    this.service.executeHelloWorldBeanService
   }
 
   public get givenName() {

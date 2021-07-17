@@ -1,0 +1,193 @@
+import com.github.spotbugs.snom.SpotBugsTask
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
+plugins {
+	id "org.unbroken-dome.test-sets" version "4.0.0" apply true
+	id 'org.springframework.boot' version '2.5.0' apply false
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE' apply false
+	id "com.gorylenko.gradle-git-properties" version "2.3.1" apply false
+	id "com.github.spotbugs" version "4.7.1" apply false
+}
+
+ext {
+	set('springCloudVersion', "2020.0.3")
+	set('testcontainersVersion', "1.15.3")
+}
+
+allprojects {
+	repositories {
+		mavenCentral()
+	}
+
+	group = 'org.dev.todo'
+	version = '0.0.1-SNAPSHOT'
+}
+
+// Configurations applied only to the SubProjects
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'checkstyle'
+	apply plugin: 'jacoco'
+	apply plugin: 'com.github.spotbugs'
+	apply plugin: 'org.springframework.boot'
+	apply plugin: 'io.spring.dependency-management'
+
+	/*
+	 * -------------------------------
+	 * Building and Packaging
+	 * -------------------------------
+	 */
+	sourceCompatibility = '11'
+	tasks.withType(JavaCompile) {
+		options.encoding = 'UTF-8'
+		options.fork = true
+		options.deprecation = true
+		options.compilerArgs += ["-Xlint:unchecked"]
+	}
+
+	jar {
+		archivesBaseName = project.name
+		archiveVersion.set(project.version.toString())
+		enabled = true
+	}
+
+
+	/*
+	 * ----------
+	 * Unit Tests
+	 * ----------
+	 */
+	test {
+		useJUnitPlatform() // Use JUnit5
+		maxHeapSize = "2g"
+		reports {
+			junitXml.enabled = true
+			html.enabled = true
+			reports.junitXml.destination = file("$buildDir/reports/unittest")
+			reports.html.destination = file("$buildDir/reports/unittest")
+		}
+	}
+	tasks.withType(Test) { testTask ->
+		testTask.testLogging {
+			// set options for log level LIFECYCLE
+			events TestLogEvent.FAILED,
+					TestLogEvent.SKIPPED,
+					TestLogEvent.STANDARD_OUT,
+					TestLogEvent.STANDARD_ERROR
+			exceptionFormat TestExceptionFormat.FULL
+			showStandardStreams false
+			showExceptions true
+			showCauses true
+			showStackTraces true
+		}
+
+		ignoreFailures = true // Always try to run all tests for all modules
+
+		// afterSuite closure is called after every test, but also after groups of tests. Whenever TestDescriptor
+		// doesn't have a parent, it's the biggest group of tests we can report.
+		afterSuite { desc, result ->
+			if (!desc.parent) { // will match the outermost suite
+
+				def duration = groovy.time.TimeCategory.minus(new Date(result.endTime), new Date(result.startTime)).toString()
+				def output = "${testTask.project.name}:${testTask.name} results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} passed, ${result.failedTestCount} failed, ${result.skippedTestCount} skipped)" +
+						"in ${duration}"
+				def reportOutput = "Report file: ${testTask.reports.html.entryPoint}"
+				def startItem = '|  ', endItem = '  |'
+				def repeatLength = startItem.length() + reportOutput.length() + endItem.length()
+				println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + startItem + reportOutput + endItem + '\n' + ('-' * repeatLength))
+			}
+		}
+	}
+
+	/*
+	 * -------------------------------
+	 * Spotbugs and Checkstyle
+	 * -------------------------------
+	 */
+	spotbugs {
+		toolVersion = '4.2.3' // Supports JDK 16
+		reportsDir = file("$project.buildDir/reports/spotbugs")
+		excludeFilter = file("${project.rootDir}/gradle/spotbugs/spotbugs-exclude.xml")
+		ignoreFailures = project.findProperty('ignoreBugs') != null
+		showProgress = true
+		effort = "max"
+		reportLevel = 'medium'
+	}
+	tasks.withType(SpotBugsTask) { spotbugsTask ->
+		reports {
+			xml.enabled = false
+			html {
+				enabled = true
+				destination = file("$project.buildDir/reports/spotbugs/$spotbugsTask.name-output.html")
+				stylesheet = 'fancy-hist.xsl'
+			}
+		}
+	}
+
+	checkstyle {
+		config = rootProject.resources.text.fromFile("gradle/checkstyle/google-checkstyle-with-header-check.xml")
+		reportsDir = file("$project.buildDir/reports/checkstyle")
+		configProperties = [
+				'checkstyle.header.file': rootProject.file('gradle/checkstyle/checkstyle-header.txt'),
+				'org.checkstyle.google.suppressionfilter.config':  rootProject.file('gradle/checkstyle/checkstyle-suppressions.xml'),
+		]
+		showViolations = true
+		ignoreFailures = false
+	}
+
+	tasks.withType(Checkstyle) {
+		reports {
+			xml.enabled false
+			html.enabled true
+			html.stylesheet rootProject.resources.text.fromFile('gradle/checkstyle/checkstyle-noframes-severity-sorted.xsl')
+		}
+	}
+
+	/*
+	 * --------------------
+	 * Jacoco Code Coverage
+	 * --------------------
+	 */
+	def coverageSourceDirs = ['src/main/java']
+	def coverageReportDir = project.buildDir.absolutePath + '/reports/coverage-reports'
+	def jacocoExecDataFile = coverageReportDir + '/jacocoUnit.exec'
+	def classpathDumpsDir = coverageReportDir + '/utClasspathDumps'
+
+	jacoco {
+		reportsDirectory = file(coverageReportDir)
+	}
+
+	jacocoTestReport {
+		group = "Reporting"
+		description = "Generate Jacoco coverage reports"
+
+		sourceDirectories.from(files(coverageSourceDirs))
+		additionalSourceDirs.from(files(coverageSourceDirs))
+		executionData.from(files(jacocoExecDataFile))
+
+		reports {
+			xml.enabled false
+			csv.enabled false
+			html.enabled true
+			html.destination file(coverageReportDir + "/html")
+		}
+
+		// tests are required to run before generating the report
+		if (project.tasks.findByName("test")) {
+			Test test = (Test) project.tasks.findByName("test")
+			dependsOn test
+		}
+	}
+
+	// Generates a coverage report after the tests are complete
+	project.tasks.findByName("test").finalizedBy(jacocoTestReport)
+
+	// configure unit test jacoco integration
+	test {
+		jacoco {
+			destinationFile = file(jacocoExecDataFile)
+			classDumpDir = file(classpathDumpsDir)
+		}
+	}
+}

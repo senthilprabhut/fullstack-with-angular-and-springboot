@@ -2,3 +2,8 @@
 <div class="container">
     <p>Welcome to our awesome app {{givenName}} ({{uid}})! You can manage your todos <a routerLink="/todos">here</a></p>
 </div>
+
+<div class="container">
+    Click here to get a customized welcome message
+    <button (click)="getWelcomeMessage()" class="btn btn-success">Get Welcome Message</button>
+</div>

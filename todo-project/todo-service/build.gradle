@@ -1,0 +1,190 @@
+apply plugin: 'org.unbroken-dome.test-sets'
+apply plugin: 'com.gorylenko.gradle-git-properties'
+
+// Exclude spring logging to make the project use Log4j2
+configurations.all {
+    exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    exclude group: 'ch.qos.logback'
+}
+
+configurations {
+    liquibase
+
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.testcontainers:testcontainers-bom:${testcontainersVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+
+dependencies {
+//    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+//    implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
+//    implementation 'org.springframework.boot:spring-boot-configuration-processor'
+
+    implementation 'org.liquibase:liquibase-core' // Create tables on application startup
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+    runtimeOnly 'org.postgresql:postgresql'
+    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.10.1' // https://find-sec-bugs.github.io/
+
+    // Lombok Dependencies
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Liquibase Task Dependencies
+    liquibase 'org.liquibase:liquibase-core'
+    liquibase 'org.liquibase.ext:liquibase-hibernate5:3.6'
+    liquibase 'ch.qos.logback:logback-classic'  //Required for liquibase diffLog
+
+    // Test Dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+//    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:postgresql'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+/*
+ * ----------
+ * Boot Jar and Build Info for /info endpoint
+ * ----------
+ */
+springBoot {
+    bootJar.enabled = true
+}
+bootJar {
+    archiveClassifier.set('boot')
+    mainClass.set('org.dev.todo.todoservice.TodoServiceApplication')
+}
+
+/*
+ * ----------
+ * ITs
+ * ----------
+ */
+testSets {
+    integrationTest
+}
+
+/*
+ * ----------
+ * Liquibase
+ * ----------
+ */
+// Generate diff changelog using command ./gradlew liquibaseDiffChangelog -Pdb_username=postgres -Pdb_password=password
+def diffLog = projectDir.toString() + "/src/main/resources/db/changelog/diff-changelog.xml"
+def db_username = findProperty("db_username")
+def db_password = findProperty("db_password")
+task liquibaseDiffChangelog(type: JavaExec) {
+    group = "liquibase"
+
+    classpath configurations.liquibase
+    classpath sourceSets.main.runtimeClasspath
+    main = "liquibase.integration.commandline.Main"
+
+    //args "--logLevel=info"
+    args "--url=jdbc:postgresql://localhost:5432/todo"
+    args "--username=${db_username}"
+    args "--password=${db_password}"
+    args "--changeLogFile=${diffLog}"
+    args "--referenceUrl=hibernate:spring:org.dev.todo.todoservice.persistence.entity?dialect=org.dev.jpa.hibernate.CustomPostgresDialect&" +
+            "hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&" +
+            "hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy"
+    args "--referenceDriver=liquibase.ext.hibernate.database.connection.HibernateDriver"
+    args "diffChangeLog"
+}
+
+
+/*
+ * -------
+ * Docker
+ * -------
+ */
+// Use `gradle dockerBuild` to create an image locally for development, or
+// Use `gradle -PdockerRegistry=registry_name -PbuildTag=build_number dockerPush` to build and push an image to a repository
+def stageDir =  buildDir.toString().trim() + '/docker'
+def buildNumber = getBuildNumber()
+def changeset = getChangeset()
+def dockerImageName = getDockerContainerName() + ':' + buildNumber
+def context = stageDir
+//def context = rootProject.projectDir.absolutePath
+
+task dockerBuild(type: Exec) {
+    // Copy the required files into the stage directory
+    doFirst {
+        copy {
+            from fileTree(dir: 'docker', includes: ['Dockerfile', 'entrypoint.sh', 'log4j2.xml'])
+            into stageDir
+        }
+        copy {
+            from jar
+            into stageDir
+        }
+        copy {
+            from configurations.runtimeClasspath.filter {f -> f.name}
+            into new File(stageDir, "/lib/")
+        }
+    }
+    project.logger.lifecycle('container name: ' + dockerImageName);
+    project.logger.lifecycle('changeset: ' + changeset);
+
+    commandLine 'docker', 'build', '--file', "${stageDir}/Dockerfile", '--tag', "${dockerImageName}", "${context}", "--build-arg", "COMMIT_ID=${changeset}"
+}
+dockerBuild.dependsOn = ['clean', 'jar']
+
+task dockerPush(type: Exec, dependsOn: dockerBuild) {
+    commandLine "docker", "push", "${dockerImageName}"
+}
+
+// tag to use on the container.
+def getBuildNumber() {
+    try {
+        // buildTag property is passed in from the Jenkins build scripts. If provided, use it.
+        def buildNumber = findProperty("buildTag")
+        if (buildNumber == null || buildNumber.trim().isEmpty()) {
+            buildNumber = "latest"
+        }
+        return buildNumber.toString().trim()
+    } catch (Exception e) {
+        return 'latest'
+    }
+}
+
+// get changeset
+def getChangeset() {
+    if (project.hasProperty('changeset')) {
+        return project.property('changeset').toString().trim()
+    }
+
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', 'HEAD'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+// get the container name - use the docker registry name if it was provided
+def getDockerContainerName() {
+    def containerName = jar.archiveBaseName.get()
+    if (project.hasProperty('dockerRegistry')) {
+        def dockerRegistry = project.property('dockerRegistry').toString().trim()
+        if (!dockerRegistry.endsWith('/')) {
+            dockerRegistry += '/'
+        }
+        containerName = dockerRegistry + containerName
+    }
+    return containerName
+}

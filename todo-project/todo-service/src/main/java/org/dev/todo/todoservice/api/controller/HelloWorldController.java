@@ -12,17 +12,25 @@
  * copies or substantial portions of the Software.
  */
 
-package org.dev.todo.todoservice;
+package org.dev.todo.todoservice.api.controller;
 
-import org.junit.jupiter.api.Test;
+import org.dev.todo.todoservice.dto.HelloWorldBean;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import org.springframework.boot.test.context.SpringBootTest;
+/**
+ * Hello world controller.
+ */
+@RestController
+public class HelloWorldController {
 
-@SpringBootTest
-class TodoServiceApplicationTest {
+  @GetMapping(path = "/hello-world")
+  public String helloWorld() {
+    return "Hello World";
+  }
 
-	@Test
-	void contextLoads() {
-	}
-
+  @GetMapping(path = "/hello-world-bean")
+  public HelloWorldBean helloWorldBean() {
+    return new HelloWorldBean("Hello World");
+  }
 }
