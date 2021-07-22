@@ -27,9 +27,3 @@ export const oauthConfig: AuthConfig = {
   // disablePKCI: true,
 
 };
-
-// export class MyAlbumsResourceConfig {
-//   static myalbums_resource_uri = 'http://localhost:8081'
-//   static albums_uri = `${MyAlbumsResourceConfig.myalbums_resource_uri}/fakealbums/albums`
-//   static photos_uri = `${MyAlbumsResourceConfig.myalbums_resource_uri}/fakealbums/mediaItems`
-// }

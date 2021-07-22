@@ -12,8 +12,10 @@
         </fieldset>
         <fieldset class="form-group">
             <label>Target Date</label>
-            <input type="date" [ngModel]="todo.targetDate | date:'yyyy-MM-dd'" #targetDate="ngModel"
-            (ngModelChange)="todo.targetDate = $event" class="form-control" name="targetDate" required="required">
+            <!-- Refer https://coryrylan.com/blog/using-html5-date-input-with-date-objects-and-angular -->
+            <!-- HTML5 date picker takes input as UTC and stores the date in local date-time -->
+            <input type="date" name="targetDate" required="required" [ngModel]="todo.targetDate | date:'yyyy-MM-dd'" 
+            #targetDate="ngModel" (ngModelChange)="todo.targetDate = $event" class="form-control" >
         </fieldset>
         <button type="submit" class="btn btn-success">Save</button>
     </form>

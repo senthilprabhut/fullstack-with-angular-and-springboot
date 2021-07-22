@@ -24,16 +24,17 @@ dependencyManagement {
 
 
 dependencies {
-//    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-log4j2'
 //    implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
-//    implementation 'org.springframework.boot:spring-boot-configuration-processor'
 
+    implementation 'org.dev.sbc.auth:commons-auth-webmvc:2.5.0.1.2' // Okta Auth
+    implementation 'org.dev.sbc.jpa:commons-jpa:2.5.0.1.2' // JPA
     implementation 'org.liquibase:liquibase-core' // Create tables on application startup
-    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+//    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
     runtimeOnly 'org.postgresql:postgresql'
     spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.10.1' // https://find-sec-bugs.github.io/
 
@@ -43,12 +44,11 @@ dependencies {
 
     // Liquibase Task Dependencies
     liquibase 'org.liquibase:liquibase-core'
-    liquibase 'org.liquibase.ext:liquibase-hibernate5:3.6'
+    liquibase 'org.liquibase.ext:liquibase-hibernate5:4.4.1'
     liquibase 'ch.qos.logback:logback-classic'  //Required for liquibase diffLog
 
     // Test Dependencies
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-//    testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.testcontainers:testcontainers'
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:postgresql'
@@ -94,12 +94,14 @@ task liquibaseDiffChangelog(type: JavaExec) {
     classpath sourceSets.main.runtimeClasspath
     main = "liquibase.integration.commandline.Main"
 
-    //args "--logLevel=info"
-    args "--url=jdbc:postgresql://localhost:5432/todo"
+    args "--logLevel=info"
+    // URL is the target for the comparison
+    args "--url=jdbc:postgresql://localhost:5432/todo-service"
     args "--username=${db_username}"
     args "--password=${db_password}"
     args "--changeLogFile=${diffLog}"
-    args "--referenceUrl=hibernate:spring:org.dev.todo.todoservice.persistence.entity?dialect=org.dev.jpa.hibernate.CustomPostgresDialect&" +
+    // referenceURL is the source for the comparison
+    args "--referenceUrl=hibernate:spring:org.dev.todo.todoservice.persistence.entity?dialect=org.dev.sbc.jpa.hibernate.CustomPostgresDialect&" +
             "hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&" +
             "hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy"
     args "--referenceDriver=liquibase.ext.hibernate.database.connection.HibernateDriver"

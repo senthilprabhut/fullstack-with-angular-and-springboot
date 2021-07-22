@@ -23,7 +23,7 @@ export class TodoComponent implements OnInit {
     this.id = this.route.snapshot.params['id'];
 
     if (this.id != -1) {
-      this.todoService.retrieveTodo('fritz', this.id).subscribe(
+      this.todoService.retrieveTodo(this.id).subscribe(
         response => {
           this.todo = response;
         }
@@ -32,9 +32,14 @@ export class TodoComponent implements OnInit {
   }
 
   saveTodo() {
-    console.log(this.id);
+    // Convert the date into UTC date
+    const date = new Date(this.todo.targetDate);
+    console.log("Before: ", date);
+    this.todo.targetDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());    
+    console.log(this.id, this.todo.targetDate);
+
     if (this.id == -1) {
-      this.todoService.createTodo('fritz', this.todo).subscribe(
+      this.todoService.createTodo(this.todo).subscribe(
         response => {
           console.log("Creating: " + response);
           this.router.navigate(['/todos']);
@@ -42,7 +47,7 @@ export class TodoComponent implements OnInit {
       )
     } else {
       console.log(this.todo);
-      this.todoService.updateTodo('fritz', this.id, this.todo).subscribe(
+      this.todoService.updateTodo(this.id, this.todo).subscribe(
         response => {
           console.log("Updating: " + response);
           this.router.navigate(['/todos']);

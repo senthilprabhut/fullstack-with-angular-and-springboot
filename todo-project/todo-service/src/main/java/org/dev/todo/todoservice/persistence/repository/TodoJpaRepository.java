@@ -12,34 +12,16 @@
  * copies or substantial portions of the Software.
  */
 
-package org.dev.todo.todoservice.dto;
+package org.dev.todo.todoservice.persistence.repository;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import java.time.LocalDateTime;
-import java.util.Date;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.util.List;
+import org.dev.todo.todoservice.persistence.entity.Todo;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * Todo Model.
+ * Todo Jpa Repository.
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Todo {
-  // ID of to-do
-  private long id;
+public interface TodoJpaRepository extends JpaRepository<Todo, Long> {
 
-  // Description of the to-do
-  private String description;
-
-  // User who created the to-do
-  private String username;
-
-  // Completion date
-  private Date targetDate;
-
-  // Whether to-do is completed
-  private boolean isDone;
+  List<Todo> findByUsername(String username);
 }

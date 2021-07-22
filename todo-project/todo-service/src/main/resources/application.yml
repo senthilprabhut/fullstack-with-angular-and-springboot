@@ -1,11 +1,31 @@
 # SERVER
 server:
   port: 8081
-#  servlet:
-#    context-path: /todo
+  shutdown: graceful
+#  servlet.context-path: /todo
+
+# Logging
+logging:
+  level:
+    org.springframework: info
+
+# SHUTDOWN
+spring:
+  lifecycle.timeout-per-shutdown-phase: 20s
+
+# SECURITY
+  security.oauth2:
+    client.registration.okta:
+      authorization-grant-type: CLIENT_CREDENTIALS
+      client-id: 0oaopj8039Qtf5qQe4x6
+      client-secret: --wlWLCVTAoFKtp7Cvk_mN1Ah768gyQtiHzOAWQL
+    resourceserver.jwt:
+      # issuer-uri property points to the base Authorization Server URI (OpenID Connect discovery endpoint)
+      issuer-uri: https://dev-117675.okta.com/oauth2/default
+      # jwk-set-uri property contains the public key that the server can use for verifying the Token’s signature
+      # jwk-set-uri: https://dev-117675.okta.com/oauth2/default/v1/keys
 
 # DATABASE
-spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
@@ -13,15 +33,41 @@ spring:
     hibernate:
       ddl-auto: none
   datasource:
-    url: "jdbc:postgresql://localhost:5432/todo"
+    url: "jdbc:postgresql://localhost:5432/todo-service"
     username: postgres
     password: password
+  sql:
+    init:
+      mode: always
+      continue-on-error: true
+      platform: postgres
 
-# LIQUIBASE
+  # LIQUIBASE
   liquibase:
-    change-log: classpath:/db/changelog/liquibase-changelog.xml
+    change-log: classpath:/db/changelog/liquibase-changelog-main.xml
 
-# Logging
-logging:
-  level:
-    org.springframework: debug
+# ACTUATOR CONFIGURATION
+management:
+  endpoints:
+    enabled-by-default: false
+    web.exposure.include: health,info
+    web.base-path: /api
+  endpoint:
+    info.enabled: true
+    health.enabled: true
+    health.show-details: NEVER
+    health.show-components: NEVER
+    health.probes.enabled: true
+
+management.info:
+  defaults.enabled: true # Whether to enable default info contributors.
+  build.enabled: false # Whether to enable build info.
+  env.enabled: false # Whether to enable environment info.
+  git.enabled: true # Whether to enable git properties
+  git.mode: SIMPLE
+
+# FRAMEWORK CONFIGURATION
+sbf:
+  okta.auth:
+    enable-oauth2: false
+    permit-all-paths: /,/api/health/**,/api/info

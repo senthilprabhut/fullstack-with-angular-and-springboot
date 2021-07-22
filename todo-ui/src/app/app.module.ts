@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http'; // Required for OAuth2
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'; // Required for OAuth2
 import { OAuthModule } from 'angular-oauth2-oidc'; // Required for OAuth2. Install using "npm i angular-oauth2-oidc --save"
 
 import { AppRoutingModule } from './app-routing.module';
@@ -14,6 +14,7 @@ import { MenuComponent } from './menu/menu.component';
 import { FooterComponent } from './footer/footer.component';
 import { LogoutComponent } from './logout/logout.component';
 import { TodoComponent } from './todo/todo.component';
+import { HttpIntercepterBearerAuthService } from './service/http/http-intercepter-bearer-auth.service';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,9 @@ import { TodoComponent } from './todo/todo.component';
     HttpClientModule,
     OAuthModule.forRoot()    
   ],
-  providers: [],
+  providers: [
+    {provide: HTTP_INTERCEPTORS, useClass: HttpIntercepterBearerAuthService, multi: true} // multi:true allows more interceptors to be configured in future. otherwise, new ones will override the current one.
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

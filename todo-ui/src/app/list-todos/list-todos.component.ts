@@ -38,17 +38,17 @@ export class ListTodosComponent implements OnInit {
   }
 
   refreshTodos() {
-    this.todoService.retrieveAllTodos('fritz').subscribe(
+    this.todoService.retrieveAllTodos().subscribe(
       response => {
         console.log(response);
         this.todos = response;
       }
-    )    
+    ) 
   }
 
   deleteTodo(id:number) {
     console.log(`Delete todo ${id}`);
-    this.todoService.deleteTodo('fritz', id).subscribe(
+    this.todoService.deleteTodo(id).subscribe(
       response => {
         this.message = `Delete of Todo ${id} Successful!`;
         this.refreshTodos();

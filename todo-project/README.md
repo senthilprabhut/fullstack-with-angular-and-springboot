@@ -9,7 +9,7 @@ Use the below commands to build the source code and run unit tests
 # Liquibase
 Use the below command to generate the liquibase changelog file
 ```
-./gradlew liquibaseDiffChangelog
+./gradlew liquibaseDiffChangelog -Pdb_username=postgres -Pdb_password=password
 ```
 
 # Docker Containers
