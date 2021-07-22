@@ -17,8 +17,8 @@ spring:
   security.oauth2:
     client.registration.okta:
       authorization-grant-type: CLIENT_CREDENTIALS
-      client-id: 0oaopj8039Qtf5qQe4x6
-      client-secret: --wlWLCVTAoFKtp7Cvk_mN1Ah768gyQtiHzOAWQL
+      client-id: TODO_CHANGE_CLIENT_ID
+      client-secret: TODO_CHANGE_CLIENT_SECRET
     resourceserver.jwt:
       # issuer-uri property points to the base Authorization Server URI (OpenID Connect discovery endpoint)
       issuer-uri: https://dev-117675.okta.com/oauth2/default
