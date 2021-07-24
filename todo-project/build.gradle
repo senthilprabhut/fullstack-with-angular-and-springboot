@@ -91,7 +91,7 @@ subprojects {
 			showStackTraces true
 		}
 
-		ignoreFailures = true // Always try to run all tests for all modules
+		ignoreFailures = false // Abort if one test fails
 
 		// afterSuite closure is called after every test, but also after groups of tests. Whenever TestDescriptor
 		// doesn't have a parent, it's the biggest group of tests we can report.
