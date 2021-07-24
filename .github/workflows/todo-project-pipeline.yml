@@ -26,7 +26,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew build -Pghp.username=${{ github.repository_owner }} -Pghp.token=${{ secrets.GITHUB_TOKEN }} -Pchangeset=${{ github.run_number }}
+      run: ./gradlew build -Pghp.username=${{ github.repository_owner }} -Pghp.token=${{ secrets.GHP_TOKEN }} -Pchangeset=${{ github.run_number }}
 
   # Needs DOCKER_USER and DOCKER_PASSWORD secrets to be set in GitHub
   docker:
