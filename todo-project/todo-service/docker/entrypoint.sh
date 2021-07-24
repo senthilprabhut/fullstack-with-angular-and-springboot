@@ -161,7 +161,7 @@ cd ${HEAP_DUMP_DIR}
 
 set +e
 exec java ${JAVA_OPTS} \
-     -cp "${cp}" org.dev.demo.DemoApplication \
+     -cp "${cp}" org.dev.todo.todoservice.TodoServiceApplication \
      --spring.profiles.active=$SPRING_PROFILES_ACTIVE_VALUE \
      --spring.config.location=$config_locations "$@"
 set -x
