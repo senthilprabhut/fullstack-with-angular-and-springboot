@@ -14,7 +14,9 @@ jobs:
   build:
     name: Build Source and Run Unit Test
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: ./todo-project
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 11
@@ -33,6 +35,9 @@ jobs:
     needs: [build]
     env:
       DOCKER_REGISTRY_URL: "docker.io"
+    defaults:
+      run:
+        working-directory: ./todo-project
 
     steps:
       - uses: actions/checkout@v2
@@ -48,8 +53,7 @@ jobs:
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login $DOCKER_REGISTRY_URL -u ${{ secrets.DOCKER_USER }} --password-stdin
       - name: Build and push the images
         run: |
-          cp -r .git todo-project/
-          cd todo-project
+          cp -r ../.git .
 
           for service_name in $(ls -d *-service);do
             DOCKERFILE_PATH=$service_name/docker/Dockerfile
