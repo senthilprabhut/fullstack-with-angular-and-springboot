@@ -24,8 +24,11 @@ jobs:
         java-version: 11.0.12
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+    - name: Copy git folder - required since build generates the git.properties file
+      run: |
+        cp -r ../.git .
     - name: Build with Gradle
-      run: ./gradlew build -Pghp.username=${{ github.repository_owner }} -Pghp.token=${{ secrets.GHP_TOKEN }} -Pchangeset=${{ github.run_number }}
+      run: ./gradlew build -Pghp.username=${{ github.repository_owner }} -Pghp.token=${{ secrets.GHP_TOKEN }}
 
   # Needs DOCKER_USER and DOCKER_PASSWORD secrets to be set in GitHub
   docker:

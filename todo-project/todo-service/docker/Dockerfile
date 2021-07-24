@@ -11,14 +11,12 @@ ENV SVC_NAME=todo-service
 ENV SVC_HOME=$BUILD_HOME/$SVC_NAME
 ENV DEPENDENCY_DIR=/opt/dependency
 
-ARG VERSION=unknown
 ARG GITHUB_USERNAME=unknown
 ARG GITHUB_TOKEN=unknown
 
 COPY . $BUILD_HOME
 WORKDIR $BUILD_HOME
-
-RUN ls -la $BUILD_HOME && gradle clean build -xcheck -Pchangeset=$VERSION -Pghp.username=$GITHUB_USERNAME -Pghp.token=$GITHUB_TOKEN
+RUN ls -la $BUILD_HOME && gradle build -xcheck -Pghp.username=$GITHUB_USERNAME -Pghp.token=$GITHUB_TOKEN
 
 WORKDIR $SVC_HOME/docker
 RUN mkdir -p $DEPENDENCY_DIR && cp ./log4j2.xml $DEPENDENCY_DIR/ && cp ./entrypoint.sh $DEPENDENCY_DIR
@@ -35,6 +33,7 @@ ARG DEPENDENCY=/opt/dependency
 ARG BRANCH=unknown
 ARG COMMIT_ID=unknown
 ARG COMMIT_MSG=unknown
+ARG VERSION=unknown
 ARG CREATED=""
 LABEL BRANCH=$BRANCH \
 	  COMMIT_ID=$COMMIT_ID \
