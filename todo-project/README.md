@@ -13,12 +13,12 @@ Use the below command to generate the liquibase changelog file
 ```
 
 # Docker Containers
-Use the below command to build a docker image locally for ui-service with changeset as a tag and 
-senthilprabhut/ui-service as the repository
+Use the below command to build a docker image locally for todo-service with changeset as a tag and 
+senthilprabhut/todo-service as the repository
 The changeset passed in as build argument will be set as the label
 ```
-changeset=`git rev-parse --short HEAD`
-docker build -f ui-service/docker/Dockerfile --build-arg VERSION=${changeset} -t senthilprabhut/ui-service:$changeset .
+commit=`git rev-parse --short HEAD`
+docker build -f todo-service/docker/Dockerfile --build-arg COMMIT_ID=${commit} --build-arg GITHUB_USERNAME=${GITHUB_USERNAME} --build-arg GITHUB_TOKEN=${GITHUB_TOKEN} -t senthilprabhut/todo-service:$changeset .
 ```
 You can use gradle to build a local image and push it to the repo
 

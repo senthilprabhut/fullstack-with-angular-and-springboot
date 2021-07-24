@@ -17,12 +17,14 @@ package org.dev.todo.todoservice.api.controller;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.dev.sbc.auth.utils.OktaSecurityContextUtils;
 import org.dev.todo.todoservice.dto.TodoDto;
 import org.dev.todo.todoservice.mapper.TodoMapper;
 import org.dev.todo.todoservice.persistence.entity.Todo;
 import org.dev.todo.todoservice.persistence.repository.TodoJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -40,15 +42,13 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 /**
  * Controller for Todos.
  */
+@RequiredArgsConstructor
 @RestController
-@RequestMapping(path = "/todos")
+@RequestMapping(path = ServiceUriPaths.TODO_API)
 public class TodoController {
 
-  @Autowired
-  private TodoJpaRepository repository;
-
-  @Autowired
-  private TodoMapper mapper;
+  private final TodoJpaRepository repository;
+  private final TodoMapper mapper;
 
   /**
    * Create a Todo.

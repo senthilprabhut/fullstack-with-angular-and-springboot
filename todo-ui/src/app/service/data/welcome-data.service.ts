@@ -12,7 +12,7 @@ export class WelcomeDataService {
     private http:HttpClient  ) { }
 
   executeHelloWorldBeanService(): Observable<HelloWorldBean> {
-    return this.http.get<HelloWorldBean>(`${API_URL}/todo/hello-world-bean`)
+    return this.http.get<HelloWorldBean>(`${API_URL}/todo/api/hello-world-bean`)
   }
 
   executeHelloWorldBeanWithPathVariable(name:string) {
@@ -21,7 +21,7 @@ export class WelcomeDataService {
     //   Authorization: bearerTokenHeaderString
     // })
     // return this.http.get<HelloWorldBean>(`${API_URL}/todo/hello-world-bean/${name}`, {headers : httpHeaders})
-    return this.http.get<HelloWorldBean>(`${API_URL}/todo/hello-world-bean/${name}`)
+    return this.http.get<HelloWorldBean>(`${API_URL}/todo/api/hello-world-bean/${name}`)
   }
 }
 

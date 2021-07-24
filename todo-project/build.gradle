@@ -23,7 +23,7 @@ allprojects {
 			name = "GitHubPackages"
 			url = uri("https://maven.pkg.github.com/senthilprabhut/spring-boot-commons")
 			credentials {
-				username = project.findProperty("ghp.user") ?: System.getenv("GITHUB_USERNAME")
+				username = project.findProperty("ghp.username") ?: System.getenv("GITHUB_USERNAME")
 				password = project.findProperty("ghp.token") ?: System.getenv("GITHUB_TOKEN")
 			}
 		}

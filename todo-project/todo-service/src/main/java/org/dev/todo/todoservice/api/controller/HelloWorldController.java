@@ -25,18 +25,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HelloWorldController {
 
-  @GetMapping(path = "/todo/hello-world")
+  @GetMapping(path = "/api/hello-world")
   public String helloWorld() {
     return "Hello World";
   }
 
-  @GetMapping(path = "/todo/hello-world-bean")
+  @GetMapping(path = "/api/hello-world-bean")
   public HelloWorldBean helloWorldBean() {
     //return new HelloWorldBean("Hello World");
     throw new RuntimeException("Runtime error from backend");
   }
 
-  @GetMapping(path = "/todo/hello-world-bean/{name}")
+  @GetMapping(path = "/api/hello-world-bean/{name}")
   public HelloWorldBean helloWorldBean(@PathVariable String name) {
     return new HelloWorldBean(String.format("Hello World, %s", name));
   }
