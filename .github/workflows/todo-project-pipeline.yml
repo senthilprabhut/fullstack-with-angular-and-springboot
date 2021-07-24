@@ -66,8 +66,8 @@ jobs:
             BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
             REPO_OWNER="${{ github.repository_owner }}"
 
-            echo docker build --file $DOCKERFILE_PATH --tag $DOCKER_IMAGE:latest --build-arg GITHUB_USERNAME=$REPO_OWNER --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} --build-arg BRANCH=$BRANCH --build-arg COMMIT_ID=$COMMIT_ID --build-arg COMMIT_MSG="$COMMIT_MSG" --build-arg CREATED=$BUILD_DATE --build-arg VERSION=$VERSION .
-            docker build --file $DOCKERFILE_PATH --tag $DOCKER_IMAGE:latest --build-arg GITHUB_USERNAME=$REPO_OWNER --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} --build-arg BRANCH=$BRANCH --build-arg COMMIT_ID=$COMMIT_ID --build-arg COMMIT_MSG="$COMMIT_MSG" --build-arg CREATED=$BUILD_DATE --build-arg VERSION=$VERSION .
+            echo docker build --file $DOCKERFILE_PATH --tag $DOCKER_IMAGE:latest --build-arg GITHUB_USERNAME=$REPO_OWNER --build-arg GITHUB_TOKEN=${{ secrets.GHP_TOKEN }} --build-arg BRANCH=$BRANCH --build-arg COMMIT_ID=$COMMIT_ID --build-arg COMMIT_MSG="$COMMIT_MSG" --build-arg CREATED=$BUILD_DATE --build-arg VERSION=$VERSION .
+            docker build --file $DOCKERFILE_PATH --tag $DOCKER_IMAGE:latest --build-arg GITHUB_USERNAME=$REPO_OWNER --build-arg GITHUB_TOKEN=${{ secrets.GHP_TOKEN }} --build-arg BRANCH=$BRANCH --build-arg COMMIT_ID=$COMMIT_ID --build-arg COMMIT_MSG="$COMMIT_MSG" --build-arg CREATED=$BUILD_DATE --build-arg VERSION=$VERSION .
 
             docker tag $DOCKER_IMAGE:latest $DOCKER_IMAGE:$VERSION
             docker push $DOCKER_IMAGE:latest
