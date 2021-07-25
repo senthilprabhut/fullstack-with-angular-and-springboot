@@ -78,8 +78,8 @@ echo "spring.security.oauth2.client.registration.okta.authorization-grant-type=C
 if [ -n "${OKTA_CLIENT_ID}" ]; then
   echo "spring.security.oauth2.client.registration.okta.client-id=${OKTA_CLIENT_ID}" >> $SVC_HOME/application.properties
 fi
-if [ -n "${OKTA_CLIENT_ID}" ]; then
-  echo "spring.security.oauth2.client.registration.okta.client-secret=${OKTA_CLIENT_ID}" >> $SVC_HOME/application.properties
+if [ -n "${OKTA_CLIENT_SECRET}" ]; then
+  echo "spring.security.oauth2.client.registration.okta.client-secret=${OKTA_CLIENT_SECRET}" >> $SVC_HOME/application.properties
 fi
 echo "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dev-117675.okta.com/oauth2/default" >> $SVC_HOME/application.properties
 
@@ -101,7 +101,7 @@ echo "spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true" >> 
 
 echo "spring.liquibase.enabled=true" >> $SVC_HOME/application.properties
 echo "spring.liquibase.drop-first=true" >> $SVC_HOME/application.properties
-echo "liquibase.change-log=classpath:/db/changelog/liquibase-changelog-main.xml" >> $SVC_HOME/application.properties
+echo "spring.liquibase.change-log=classpath:/db/changelog/liquibase-changelog-main.xml" >> $SVC_HOME/application.properties
 
 ## SPRING ACTUATOR SETTINGS
 echo "management.endpoints.enabled-by-default=false" >> $SVC_HOME/application.properties
