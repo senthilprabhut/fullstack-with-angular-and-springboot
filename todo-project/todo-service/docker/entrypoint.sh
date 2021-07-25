@@ -99,6 +99,10 @@ echo "spring.jpa.hibernate.ddl-auto=none" >> $SVC_HOME/application.properties
 echo "spring.jpa.properties.hibernate.format_sql=false" >> $SVC_HOME/application.properties
 echo "spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true" >> $SVC_HOME/application.properties
 
+echo "spring.sql.init.mode=always" >> $SVC_HOME/application.properties
+echo "spring.sql.init.continue-on-error=true" >> $SVC_HOME/application.properties
+echo "spring.sql.init.platform=postgres" >> $SVC_HOME/application.properties
+
 echo "spring.liquibase.enabled=true" >> $SVC_HOME/application.properties
 echo "spring.liquibase.drop-first=true" >> $SVC_HOME/application.properties
 echo "spring.liquibase.change-log=classpath:/db/changelog/liquibase-changelog-main.xml" >> $SVC_HOME/application.properties

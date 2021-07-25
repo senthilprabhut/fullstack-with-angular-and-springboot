@@ -10,7 +10,7 @@ export const oauthConfig: AuthConfig = {
   redirectUri: window.location.origin + '/login',
 
   // URL of the SPA to redirect the user to after logout
-  postLogoutRedirectUri: window.location.origin + "/logout",
+  postLogoutRedirectUri: window.location.origin + '/logout',
 
   // Registered ClientID in the Authorization Server. No Client Secret Required
   clientId: '0oa3e4kbo2qZReMi34x7',

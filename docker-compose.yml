@@ -1,0 +1,37 @@
+version: "3.1"
+
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    container_name: my-postgres
+    #network_mode: bridge
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./todo-project/create-database.sql:/docker-entrypoint-initdb.d/create-database.sql
+  todo-service:
+    image: senthilprabhut/todo-service:10
+    container_name: todo-service
+    #network_mode: bridge
+    environment:
+      - OKTA_CLIENT_ID=${OKTA_CLIENT_ID}
+      - OKTA_CLIENT_SECRET=${OKTA_CLIENT_SECRET}
+      - DATASOURCE_URL=jdbc:postgresql://postgres:5432/todo-service
+      - DATASOURCE_USER=postgres
+      - DATASOURCE_PASS=password
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+  todo-ui:
+    image: senthilprabhut/todo-ui:10
+    container_name: todo-ui
+    #network_mode: bridge
+    ports:
+      - "4200:80"
+    depends_on:
+      - todo-service

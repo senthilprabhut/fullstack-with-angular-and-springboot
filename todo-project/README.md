@@ -40,10 +40,10 @@ docker build -f todo-service/docker/Dockerfile --build-arg COMMIT_ID=${commit} -
 Use the below command to run the docker container locally
 ```shell
 #Image name is used here
-docker run -d --name todo-service -e OKTA_CLIENT_ID=${OKTA_CLIENT_ID} -e OKTA_CLIENT_SECRET=${OKTA_CLIENT_SECRET} -e DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/todo-service -e DATASOURCE_USER=postgres -e DATASOURCE_PASS=password senthilprabhut/todo-service:10
+docker run -d -p 8081:8081 --name todo-service -e OKTA_CLIENT_ID=${OKTA_CLIENT_ID} -e OKTA_CLIENT_SECRET=${OKTA_CLIENT_SECRET} -e DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/todo-service -e DATASOURCE_USER=postgres -e DATASOURCE_PASS=password senthilprabhut/todo-service:10
 
 #Image id is used here
-docker run -d --name todo-service -e OKTA_CLIENT_ID=${OKTA_CLIENT_ID} -e OKTA_CLIENT_SECRET=${OKTA_CLIENT_SECRET} -e DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/todo-service -e DATASOURCE_USER=postgres -e DATASOURCE_PASS=password c0e8c2e6fd24
+docker run -d -p 8081:8081 --name todo-service -e OKTA_CLIENT_ID=${OKTA_CLIENT_ID} -e OKTA_CLIENT_SECRET=${OKTA_CLIENT_SECRET} -e DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/todo-service -e DATASOURCE_USER=postgres -e DATASOURCE_PASS=password c0e8c2e6fd24
 ```
 
 ## Use Gradle to build image and push it to the repo
