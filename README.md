@@ -1,4 +1,4 @@
-#Docker Compose Instructions
+# Docker Compose Instructions
 To start the containers, use the below command
 ```shell
 docker-compose up -d
