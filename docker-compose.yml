@@ -28,9 +28,11 @@ services:
     depends_on:
       - postgres
   todo-ui:
-    image: senthilprabhut/todo-ui:10
+    image: senthilprabhut/todo-ui:101
     container_name: todo-ui
     #network_mode: bridge
+    environment:
+      - BACKEND_API_URL=http://localhost:8081
     ports:
       - "4200:80"
     depends_on:

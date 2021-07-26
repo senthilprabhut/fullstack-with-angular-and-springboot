@@ -15,6 +15,7 @@ import { FooterComponent } from './footer/footer.component';
 import { LogoutComponent } from './logout/logout.component';
 import { TodoComponent } from './todo/todo.component';
 import { HttpIntercepterBearerAuthService } from './service/http/http-intercepter-bearer-auth.service';
+import { environment } from 'src/environments/environment';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { HttpIntercepterBearerAuthService } from './service/http/http-intercepte
     OAuthModule.forRoot()    
   ],
   providers: [
-    {provide: HTTP_INTERCEPTORS, useClass: HttpIntercepterBearerAuthService, multi: true} // multi:true allows more interceptors to be configured in future. otherwise, new ones will override the current one.
+    {provide: HTTP_INTERCEPTORS, useClass: HttpIntercepterBearerAuthService, multi: true}, // multi:true allows more interceptors to be configured in future. otherwise, new ones will override the current one.
+    {provide: 'BACKEND_API_URL', useValue: environment.backendApiUrl}
   ],
   bootstrap: [AppComponent]
 })

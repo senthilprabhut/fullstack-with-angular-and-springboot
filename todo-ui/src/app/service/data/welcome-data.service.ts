@@ -1,18 +1,17 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { API_URL } from 'src/app/app.constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WelcomeDataService {
 
-  constructor(
+  constructor(@Inject('BACKEND_API_URL') private apiUrl:string,
     private http:HttpClient  ) { }
 
   executeHelloWorldBeanService(): Observable<HelloWorldBean> {
-    return this.http.get<HelloWorldBean>(`${API_URL}/todo/api/hello-world-bean`)
+    return this.http.get<HelloWorldBean>(`${this.apiUrl}/todo/api/hello-world-bean`)
   }
 
   executeHelloWorldBeanWithPathVariable(name:string) {
@@ -21,7 +20,7 @@ export class WelcomeDataService {
     //   Authorization: bearerTokenHeaderString
     // })
     // return this.http.get<HelloWorldBean>(`${API_URL}/todo/hello-world-bean/${name}`, {headers : httpHeaders})
-    return this.http.get<HelloWorldBean>(`${API_URL}/todo/api/hello-world-bean/${name}`)
+    return this.http.get<HelloWorldBean>(`${this.apiUrl}/todo/api/hello-world-bean/${name}`)
   }
 }
 
