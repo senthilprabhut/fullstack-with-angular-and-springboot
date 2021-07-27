@@ -19,7 +19,7 @@ jobs:
       with:
         node-version: '16.x'
     - name: Install Dependencies
-      run: npm install
+      run: npm install --force
     - name: Build
       run: npm run build
 
@@ -49,7 +49,7 @@ jobs:
           node-version: '16.x'
       - name: Build and push the images
         run: |
-            DOCKERFILE_PATH=todo-ui/Dockerfile
+            DOCKERFILE_PATH=Dockerfile
             DOCKER_IMAGE=$DOCKER_REGISTRY_URL/${{ secrets.DOCKER_USER }}/todo-ui
 
             VERSION="${{ github.run_number }}"
