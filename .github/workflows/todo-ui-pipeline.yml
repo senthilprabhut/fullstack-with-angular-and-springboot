@@ -3,6 +3,7 @@
 name: Todo UI - Build Angular Code, Publish Docker Image
 
 on:
+  workflow_dispatch:
   push:
     paths:
     - "todo-ui/**"

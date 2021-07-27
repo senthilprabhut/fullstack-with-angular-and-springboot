@@ -5,6 +5,7 @@
 name: Todo Backend - Build Code, Publish Docker Image
 
 on:
+  workflow_dispatch:
   push:
     paths:
     - "todo-project/**"
