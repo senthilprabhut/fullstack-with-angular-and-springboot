@@ -2,7 +2,7 @@
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
 # For docker, see: https://www.learncloudnative.com/blog/2020-02-20-github-action-build-push-docker-images/
 
-name: Pipeline - Build Code, Publish Docker Image
+name: Todo Backend - Build Code, Publish Docker Image
 
 on:
   push:

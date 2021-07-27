@@ -36,7 +36,17 @@ COPY --from=build-step /angular-workdir/dist/todo /usr/share/nginx/html
 RUN echo "mainFileName=\"\$(ls /usr/share/nginx/html/main*.js)\" && \
           envsubst '\$BACKEND_API_URL ' < \${mainFileName} > main.tmp && \
           mv main.tmp  \${mainFileName} && nginx -g 'daemon off;'" > run.sh
-RUN 
+
+ARG BRANCH=unknown
+ARG COMMIT_ID=unknown
+ARG COMMIT_MSG=unknown
+ARG VERSION=unknown
+ARG CREATED=""
+LABEL BRANCH=$BRANCH \
+	  COMMIT_ID=$COMMIT_ID \
+	  COMMIT_MSG=$COMMIT_MSG \
+	  CREATED=$CREATED \
+	  VERSION=$VERSION 
 
 # Expose 4200 as the host port and 80 as the container port.
 EXPOSE 80
