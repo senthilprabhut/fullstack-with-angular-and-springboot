@@ -1,0 +1,51 @@
+# Default values for todo-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+serviceName: todo-service
+environment: dev
+replicaCount: 1
+
+image:
+  pullPolicy: IfNotPresent
+  repository: "senthilprabhut/todo-service"
+  tag: "10"
+  # Overrides the image tag whose default is the chart appVersion.
+
+service:
+  type: ClusterIP
+  host: todo-project
+  port: 8081
+
+autoscaling:
+  enabled: false
+
+limits:
+  cpu: 2
+  memory: 2Gi
+requests:
+  cpu: 2
+  memory: 1Gi
+
+jvmHeap: 768m
+
+postgres:
+  host: postgres
+  port: 5432
+
+ui:
+  host: todo-ui
+  port: 80
+
+ingress:
+  enabled: false
+  # - path: /todo/api
+
+#   className: ""
+#   annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  # tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local

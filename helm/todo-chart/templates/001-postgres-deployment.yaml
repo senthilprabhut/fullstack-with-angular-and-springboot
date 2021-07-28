@@ -1,0 +1,136 @@
+# https://medium.com/@suyashmohan/setting-up-postgresql-database-on-kubernetes-24a2a192e962
+# https://severalnines.com/database-blog/using-kubernetes-deploy-postgresql
+# https://medium.com/@xcoulon/managing-pod-configuration-using-configmaps-and-secrets-in-kubernetes-93a2de9449be
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: k3d-postgres-pv
+  labels:
+    app: postgres
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/tmp/k3dvol/postgres"
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: k3d-postgres-pvc
+  labels:
+    app: postgres
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: k3d-postgres-scripts-pv
+  labels:
+    app: postgres
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 50Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/tmp/k3dvol/postgresinit"
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: k3d-postgres-scripts-pvc
+  labels:
+    app: postgres
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  labels:
+    app: postgres
+spec:
+  ports:
+    - port: 5432
+      name: postgresdbport
+  type: NodePort
+  selector:
+    app: postgres
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-statefulset
+  labels:
+    app: postgres
+spec:
+  serviceName: "postgres"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      volumes:
+        - name: pv-data
+          persistentVolumeClaim:
+            claimName: k3d-postgres-pvc
+        - name: pv-init
+          persistentVolumeClaim:
+            claimName: k3d-postgres-scripts-pvc
+      containers:
+        - name: postgres
+          image: postgres:12
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5432
+              name: postgresdbport
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+#          envFrom:
+#            - configMapRef:
+#                name: postgres-config
+          volumeMounts:
+            - name: pv-init
+              mountPath: /docker-entrypoint-initdb.d/
+            - name: pv-data
+              mountPath: /var/lib/postgresql/data

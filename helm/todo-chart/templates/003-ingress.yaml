@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+# apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: traefik-ingress
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "false"
+    kubernetes.io/ingress.class: traefik
+    # traefik.ingress.kubernetes.io/rewrite-target: {{ .targetPath }}
+    # nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                 name: {{ .Values.ui.host }}
+                 port:
+                   number: {{ .Values.ui.port }}
+          - path: /todo
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.service.host }}
+                port:
+                  number: {{ .Values.service.port }}

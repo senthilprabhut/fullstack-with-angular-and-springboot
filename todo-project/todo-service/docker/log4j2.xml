@@ -3,7 +3,7 @@
 <Configuration status="INFO" monitorInterval="5">
     <Properties>
         <Property name="HOSTNAME">${env:HOSTNAME:-localhost}</Property>
-        <Property name="SERVICE_NAME">demo-service</Property>
+        <Property name="SERVICE_NAME">todo-service</Property>
     </Properties>
     <Appenders>
         <Console name="console" target="SYSTEM_OUT">
