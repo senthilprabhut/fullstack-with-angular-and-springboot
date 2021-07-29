@@ -43,9 +43,13 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: password
+            - name: OKTA_CLIENT_ID
+              value: '0oaopj8039Qtf5qQe4x6'
+            - name: OKTA_CLIENT_ID
+              value: '65NUzcJa0CEQzF-_EwDN8zRaW_vgKTurOQY0dW_w'
           livenessProbe:
             httpGet:
-              path: /todo/api/liveness
+              path: /todo/api/health/liveness
               port: {{ .Values.service.port }}
             initialDelaySeconds: 20
             periodSeconds: 10
@@ -54,7 +58,7 @@ spec:
             timeoutSeconds: 30
           readinessProbe:
             httpGet:
-              path: /todo/api/readiness
+              path: /todo/api/health/readiness
               port: {{ .Values.service.port }}
             initialDelaySeconds: 10
             periodSeconds: 5

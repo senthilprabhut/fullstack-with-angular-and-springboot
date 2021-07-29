@@ -9,6 +9,26 @@ To bring down the containers, use the command
 docker-compose down
 ```
 
+# K3D Instructions
+
+```shell
+mkdir /tmp/k3dvol/postgres
+mkdir /tmp/k3dvol/postgresinit
+cp ./todo-project/create-database.sql /tmp/k3dvol/postgresinit
+
+k3d cluster create todo-cluster -p 4200:80@loadbalancer --api-port 6550 --volume /tmp/k3dvol/postgres:/tmp/k3dvol/postgres --volume /tmp/k3dvol/postgresinit:/tmp/k3dvol/postgresinit  --servers 1 --agents 2
+
+k3d delete cluster todo-cluster
+```
+
+# Helm Instructions
+
+```shell
+helm install todo ./todo-chart --namespace default --wait --timeout 300s  
+
+helm uninstall todo
+```
+
 ### Note about resolving angular app running on nginx
 Reference: https://stackoverflow.com/questions/65766633/call-to-api-from-angular-in-nginx-does-not-resolve-docker-service-name
 

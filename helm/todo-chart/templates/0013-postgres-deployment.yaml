@@ -63,6 +63,7 @@ spec:
   resources:
     requests:
       storage: 10Mi
+
 ---
 apiVersion: v1
 kind: Service

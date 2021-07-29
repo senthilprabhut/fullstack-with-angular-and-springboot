@@ -17,10 +17,12 @@ package org.dev.todo.todoservice.persistence.repository;
 import java.util.List;
 import org.dev.todo.todoservice.persistence.entity.Todo;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 /**
  * Todo Jpa Repository.
  */
+@Repository
 public interface TodoJpaRepository extends JpaRepository<Todo, Long> {
 
   List<Todo> findByUsername(String username);
