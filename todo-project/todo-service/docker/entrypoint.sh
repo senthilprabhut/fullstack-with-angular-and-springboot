@@ -125,12 +125,12 @@ echo "management.info.git.mode=SIMPLE" >> $SVC_HOME/application.properties
 #---------------------------
 #  FRAMEWORK PROPERTIES
 #---------------------------
-echo "sbf.okta.auth.enable-oauth2=false" >> $SVC_HOME/application.properties
-echo "sbf.okta.auth.permit-all-paths=/,/error,/webjars/**,/api/swagger/**,/api/health/**,/api/info" >> $SVC_HOME/application.properties
-echo "sbf.openapi.swagger-context-path=/api/swagger" >> $SVC_HOME/application.properties
-echo "sbf.openapi.base-package=org.dev.todo.todoservice.api.controller" >> $SVC_HOME/application.properties
-echo "sbf.openapi.path-ant-pattern=/api/**" >> $SVC_HOME/application.properties
-echo "sbf.openapi.group-name=todo" >> $SVC_HOME/application.properties
+echo "sbc.okta.auth.enable-oauth2=false" >> $SVC_HOME/application.properties
+echo "sbc.okta.auth.permit-all-paths=/,/error,/webjars/**,/api/swagger/**,/api/health/**,/api/info" >> $SVC_HOME/application.properties
+echo "sbc.openapi.swagger-context-path=/api/swagger" >> $SVC_HOME/application.properties
+echo "sbc.openapi.base-package=org.dev.todo.todoservice.api.controller" >> $SVC_HOME/application.properties
+echo "sbc.openapi.path-ant-pattern=/api/**" >> $SVC_HOME/application.properties
+echo "sbc.openapi.group-name=todo" >> $SVC_HOME/application.properties
 
 #------------------------
 #  Start the application

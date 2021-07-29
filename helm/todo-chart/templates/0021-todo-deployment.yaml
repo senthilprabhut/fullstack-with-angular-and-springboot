@@ -51,19 +51,19 @@ spec:
             httpGet:
               path: /todo/api/health/liveness
               port: {{ .Values.service.port }}
-            initialDelaySeconds: 20
-            periodSeconds: 10
+            initialDelaySeconds: 30
+            periodSeconds: 5
             successThreshold: 1
-            failureThreshold: 2
+            failureThreshold: 3
             timeoutSeconds: 30
           readinessProbe:
             httpGet:
               path: /todo/api/health/readiness
               port: {{ .Values.service.port }}
-            initialDelaySeconds: 10
+            initialDelaySeconds: 30
             periodSeconds: 5
             successThreshold: 1
-            failureThreshold: 2
+            failureThreshold: 3
             timeoutSeconds: 30
           resources:
             limits:

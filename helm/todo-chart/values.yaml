@@ -7,9 +7,9 @@ environment: dev
 replicaCount: 1
 
 image:
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   repository: "senthilprabhut/todo-service"
-  tag: "12"
+  tag: "latest"
   # Overrides the image tag whose default is the chart appVersion.
 
 service:

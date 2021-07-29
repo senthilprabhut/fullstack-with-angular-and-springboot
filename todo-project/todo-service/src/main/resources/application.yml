@@ -67,7 +67,7 @@ management.info:
   git.mode: SIMPLE
 
 # FRAMEWORK CONFIGURATION
-sbf:
+sbc:
   okta.auth:
     enable-oauth2: false
     permit-all-paths: /,/api/health/**,/api/info

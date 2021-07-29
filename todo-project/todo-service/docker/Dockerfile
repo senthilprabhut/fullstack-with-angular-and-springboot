@@ -24,8 +24,8 @@ RUN mkdir -p $DEPENDENCY_DIR && cp ./log4j2.xml $DEPENDENCY_DIR/ && cp ./entrypo
 WORKDIR $DEPENDENCY_DIR
 RUN jar -xf $SVC_HOME/build/libs/*boot.jar
 
-#--- actual docker image with dependencies (jdk buster images are debian based) ---
-FROM openjdk:11.0.8-jre-buster
+#--- actual docker image with dependencies (alpine images are alpine linux based) ---
+FROM azul/zulu-openjdk-alpine:11.0.12
 
 ENV APP_HOME=/opt/app
 ARG DEPENDENCY=/opt/dependency
