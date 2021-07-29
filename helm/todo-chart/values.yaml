@@ -9,7 +9,7 @@ replicaCount: 1
 image:
   pullPolicy: IfNotPresent
   repository: "senthilprabhut/todo-service"
-  tag: "5"
+  tag: "12"
   # Overrides the image tag whose default is the chart appVersion.
 
 service:
@@ -24,7 +24,7 @@ limits:
   cpu: 2
   memory: 2Gi
 requests:
-  cpu: 2
+  cpu: 1
   memory: 1Gi
 
 jvmHeap: 768m

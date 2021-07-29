@@ -26,12 +26,12 @@ dependencyManagement {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+//    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-log4j2'
 //    implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
 
-    implementation 'org.dev.sbc.auth:commons-auth-webmvc:2.5.0.1.2' // Okta Auth
-    implementation 'org.dev.sbc.jpa:commons-jpa:2.5.0.1.2' // JPA
+    implementation 'org.dev.sbc.auth:commons-auth-webmvc:2.5.2.1.3' // Okta Auth
+    implementation 'org.dev.sbc.jpa:commons-jpa:2.5.2.1.3' // JPA
     implementation 'org.liquibase:liquibase-core' // Create tables on application startup
     implementation 'com.fasterxml.jackson.core:jackson-databind'
 //    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'

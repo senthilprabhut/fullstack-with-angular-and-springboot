@@ -18,13 +18,13 @@ cp ./todo-project/create-database.sql /tmp/k3dvol/postgresinit
 
 k3d cluster create todo-cluster -p 4200:80@loadbalancer --api-port 6550 --volume /tmp/k3dvol/postgres:/tmp/k3dvol/postgres --volume /tmp/k3dvol/postgresinit:/tmp/k3dvol/postgresinit  --servers 1 --agents 2
 
-k3d delete cluster todo-cluster
+k3d cluster delete todo-cluster
 ```
 
 # Helm Instructions
 
 ```shell
-helm install todo ./todo-chart --namespace default --wait --timeout 300s  
+helm install todo ./todo-chart --namespace default --wait --timeout 300s
 
 helm uninstall todo
 ```
