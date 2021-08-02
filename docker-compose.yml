@@ -14,7 +14,7 @@ services:
     volumes:
       - ./todo-project/create-database.sql:/docker-entrypoint-initdb.d/create-database.sql
   todo-service:
-    image: senthilprabhut/todo-service:17
+    image: senthilprabhut/todo-service:18
     container_name: todo-service
     #network_mode: bridge
     environment:

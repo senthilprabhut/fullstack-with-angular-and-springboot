@@ -14,7 +14,7 @@ service:
 image:
   pullPolicy: IfNotPresent
   repository: "senthilprabhut/todo-service"
-  tag: "17"
+  tag: "18"
 
 
 autoscaling:
