@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: postgres-config
   labels:
-    app: postgres
+    app: {{ .Values.postgres.service.name }}
 data:
   POSTGRES_DB: todo-service
   POSTGRES_USER: postgres

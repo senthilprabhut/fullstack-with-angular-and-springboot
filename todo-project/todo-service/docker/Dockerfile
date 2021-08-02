@@ -25,7 +25,7 @@ WORKDIR $DEPENDENCY_DIR
 RUN jar -xf $SVC_HOME/build/libs/*boot.jar
 
 #--- actual docker image with dependencies (jdk buster images are debian based) ---
-FROM openjdk:11.0.12-jre-buster
+FROM arm64v8/openjdk:11.0.12-jre-buster
 
 ENV APP_HOME=/opt/app
 ARG DEPENDENCY=/opt/dependency

@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.serviceName }}
+  name: {{ .Values.service.name }}
   labels:
-    app: {{ .Values.serviceName }}
+    app: {{ .Values.service.name }}
     environment: {{ .Values.environment }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
@@ -11,16 +11,16 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      app: {{ .Values.serviceName }}
+      app: {{ .Values.service.name }}
       environment: {{ .Values.environment }}
   template:
     metadata:
       labels:
-        app: {{ .Values.serviceName }}
+        app: {{ .Values.service.name }}
         environment: {{ .Values.environment }}
     spec:
       containers:
-        - name: {{ .Values.serviceName }}
+        - name: {{ .Values.service.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
@@ -32,7 +32,7 @@ spec:
                   name: postgres-config
                   key: POSTGRES_DB
             - name: DATASOURCE_URL
-              value: jdbc:postgresql://postgres-service.default.svc.cluster.local:5432/$(POSTGRES_DB)
+              value: jdbc:postgresql://{{ .Values.postgres.service.name }}-service.default.svc.cluster.local:{{ .Values.postgres.service.port }}/$(POSTGRES_DB)
             - name: DATASOURCE_USER
               valueFrom:
                 secretKeyRef:
@@ -44,9 +44,15 @@ spec:
                   name: postgres-secret
                   key: password
             - name: OKTA_CLIENT_ID
-              value: '0oaopj8039Qtf5qQe4x6'
-            - name: OKTA_CLIENT_ID
-              value: '65NUzcJa0CEQzF-_EwDN8zRaW_vgKTurOQY0dW_w'
+              valueFrom:
+                secretKeyRef:
+                  name: todo-secret
+                  key: client-id
+            - name: OKTA_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: todo-secret
+                  key: client-secret
           livenessProbe:
             httpGet:
               path: /todo/api/health/liveness

@@ -14,7 +14,7 @@ services:
     volumes:
       - ./todo-project/create-database.sql:/docker-entrypoint-initdb.d/create-database.sql
   todo-service:
-    image: senthilprabhut/todo-service:5
+    image: senthilprabhut/todo-service:17
     container_name: todo-service
     #network_mode: bridge
     environment:
@@ -28,7 +28,7 @@ services:
     depends_on:
       - postgres
   todo-ui:
-    image: senthilprabhut/todo-ui:101
+    image: senthilprabhut/todo-ui:4
     container_name: todo-ui
     #network_mode: bridge
     environment:

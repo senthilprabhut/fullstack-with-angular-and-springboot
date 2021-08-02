@@ -15,13 +15,13 @@ spec:
             pathType: Prefix
             backend:
               service:
-                 name: {{ .Values.ui.host }}
+                 name: {{ .Values.ui.service.name }}
                  port:
-                   number: {{ .Values.ui.port }}
+                   number: {{ .Values.ui.service.port }}
           - path: /todo
             pathType: Prefix
             backend:
               service:
-                name: {{ .Values.service.host }}
+                name: {{ .Values.service.name }}
                 port:
                   number: {{ .Values.service.port }}

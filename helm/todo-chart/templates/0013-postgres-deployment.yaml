@@ -6,7 +6,7 @@ kind: PersistentVolume
 metadata:
   name: k3d-postgres-pv
   labels:
-    app: postgres
+    app: {{ .Values.postgres.service.name }}
     type: local
 spec:
   storageClassName: manual
@@ -15,7 +15,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/tmp/k3dvol/postgres"
+    path: {{ .Values.postgres.service.dataPath }}
 
 ---
 apiVersion: v1
@@ -23,7 +23,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: k3d-postgres-pvc
   labels:
-    app: postgres
+    app: {{ .Values.postgres.service.name }}
 spec:
   storageClassName: manual
   accessModes:
@@ -38,7 +38,7 @@ kind: PersistentVolume
 metadata:
   name: k3d-postgres-scripts-pv
   labels:
-    app: postgres
+    app: {{ .Values.postgres.service.name }}
     type: local
 spec:
   storageClassName: manual
@@ -47,7 +47,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/tmp/k3dvol/postgresinit"
+    path: {{ .Values.postgres.service.initPath }}
 
 ---
 apiVersion: v1
@@ -55,7 +55,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: k3d-postgres-scripts-pvc
   labels:
-    app: postgres
+    app: {{ .Values.postgres.service.name }}
 spec:
   storageClassName: manual
   accessModes:
@@ -68,16 +68,16 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres-service
+  name: {{ .Values.postgres.service.name }}-service
   labels:
-    app: postgres
+    app: {{ .Values.postgres.service.name }}
 spec:
   ports:
-    - port: 5432
+    - port: {{ .Values.postgres.service.port }}
       name: postgresdbport
   type: NodePort
   selector:
-    app: postgres
+    app: {{ .Values.postgres.service.name }}
 
 ---
 apiVersion: apps/v1
@@ -85,17 +85,17 @@ kind: StatefulSet
 metadata:
   name: postgres-statefulset
   labels:
-    app: postgres
+    app: {{ .Values.postgres.service.name }}
 spec:
-  serviceName: "postgres"
+  serviceName: {{ .Values.postgres.service.name }}
   replicas: 1
   selector:
     matchLabels:
-      app: postgres
+      app: {{ .Values.postgres.service.name }}
   template:
     metadata:
       labels:
-        app: postgres
+        app: {{ .Values.postgres.service.name }}
     spec:
       volumes:
         - name: pv-data
@@ -105,11 +105,11 @@ spec:
           persistentVolumeClaim:
             claimName: k3d-postgres-scripts-pvc
       containers:
-        - name: postgres
-          image: postgres:12
-          imagePullPolicy: "IfNotPresent"
+        - name: {{ .Values.postgres.service.name }}
+          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+          imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
           ports:
-            - containerPort: 5432
+            - containerPort: {{ .Values.postgres.service.port }}
               name: postgresdbport
           env:
             - name: POSTGRES_DB
