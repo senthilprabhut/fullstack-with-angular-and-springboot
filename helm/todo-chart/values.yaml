@@ -2,19 +2,18 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-serviceName: todo-service
 environment: dev
 replicaCount: 1
 
 service:
   type: ClusterIP
-  name: todo-project
+  name: todo-service
   port: 8081
 
 image:
   pullPolicy: IfNotPresent
   repository: "senthilprabhut/todo-service"
-  tag: "18"
+  tag: "19"
 
 
 autoscaling:
@@ -38,7 +37,7 @@ ui:
   service:
     name: todo-ui
     port: 80
-    backendUrl: http://localhost:8081
+    backendUrl: http://localhost:4200   # ingress url
 
 # postgres related values
 postgres:
@@ -65,3 +64,13 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
+
+# prometheus
+prometheus:
+  image:
+    pullPolicy: IfNotPresent
+    repository: "prom/prometheus"
+    tag: "v2.24.1"
+  service:
+    name: prometheus
+    port: 9090

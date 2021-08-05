@@ -50,9 +50,10 @@ spring:
 management:
   endpoints:
     enabled-by-default: false
-    web.exposure.include: health,info
+    web.exposure.include: health,info,prometheus
     web.base-path: /api
   endpoint:
+    prometheus.enabled: true
     info.enabled: true
     health.enabled: true
     health.show-details: NEVER
@@ -70,4 +71,4 @@ management.info:
 sbc:
   okta.auth:
     enable-oauth2: false
-    permit-all-paths: /,/api/health/**,/api/info
+    permit-all-paths: /,/api/health/**,/api/info,/api/prometheus

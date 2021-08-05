@@ -1,0 +1,26 @@
+global:
+  scrape_interval:   15s # By default, scrape targets every 1 minute
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+    monitor: 'springboot-monitoring'
+
+scrape_configs:
+- job_name:       'todo-monitoring'
+
+  # Override the global default and scrape targets from this job every 10 seconds.
+  scrape_interval: 10s
+  metrics_path: '/todo/api/prometheus'
+
+  static_configs:
+  - targets: ['todo-service:8081']
+    labels:
+      application: 'todo-service'
+
+- job_name: 'prom-monitoring'
+
+  scrape_interval: 5s
+
+  static_configs:
+  - targets: ['localhost:9090']

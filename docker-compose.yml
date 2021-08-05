@@ -4,7 +4,7 @@ services:
   postgres:
     image: postgres:latest
     restart: always
-    container_name: my-postgres
+    container_name: postgres_container
     #network_mode: bridge
     environment:
       - POSTGRES_USER=postgres
@@ -14,7 +14,7 @@ services:
     volumes:
       - ./todo-project/create-database.sql:/docker-entrypoint-initdb.d/create-database.sql
   todo-service:
-    image: senthilprabhut/todo-service:18
+    image: senthilprabhut/todo-service:10
     container_name: todo-service
     #network_mode: bridge
     environment:
@@ -37,3 +37,21 @@ services:
       - "4200:80"
     depends_on:
       - todo-service
+  prometheus:
+    image: prom/prometheus:v2.24.1
+    container_name: 'prometheus'
+    volumes:
+    - ./monitoring/prometheus/:/etc/prometheus/
+    ports:
+    - '9090:9090'
+  grafana:
+    image: grafana/grafana:5.4.3
+    container_name: 'grafana'
+    ports:
+    - '3000:3000'
+    volumes:
+    - ./monitoring/grafana/provisioning/:/etc/grafana/provisioning/
+    env_file:
+    - ./monitoring/grafana/config.monitoring
+    depends_on:
+    - prometheus

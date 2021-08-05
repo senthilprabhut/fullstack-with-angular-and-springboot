@@ -109,8 +109,9 @@ echo "spring.liquibase.change-log=classpath:/db/changelog/liquibase-changelog-ma
 
 ## SPRING ACTUATOR SETTINGS
 echo "management.endpoints.enabled-by-default=false" >> $SVC_HOME/application.properties
-echo "management.endpoints.web.exposure.include=health,info" >> $SVC_HOME/application.properties
+echo "management.endpoints.web.exposure.include=health,info,prometheus" >> $SVC_HOME/application.properties
 echo "management.endpoints.web.base-path=/api" >> $SVC_HOME/application.properties
+echo "management.endpoint.prometheus.enabled=true" >> $SVC_HOME/application.properties
 echo "management.endpoint.info.enabled=true" >> $SVC_HOME/application.properties
 echo "management.endpoint.health.enabled=true" >> $SVC_HOME/application.properties
 echo "management.endpoint.health.show-details=NEVER" >> $SVC_HOME/application.properties
@@ -126,7 +127,7 @@ echo "management.info.git.mode=SIMPLE" >> $SVC_HOME/application.properties
 #  FRAMEWORK PROPERTIES
 #---------------------------
 echo "sbc.okta.auth.enable-oauth2=false" >> $SVC_HOME/application.properties
-echo "sbc.okta.auth.permit-all-paths=/,/error,/webjars/**,/api/swagger/**,/api/health/**,/api/info" >> $SVC_HOME/application.properties
+echo "sbc.okta.auth.permit-all-paths=/,/error,/webjars/**,/api/swagger/**,/api/health/**,/api/info,/api/prometheus" >> $SVC_HOME/application.properties
 echo "sbc.openapi.swagger-context-path=/api/swagger" >> $SVC_HOME/application.properties
 echo "sbc.openapi.base-package=org.dev.todo.todoservice.api.controller" >> $SVC_HOME/application.properties
 echo "sbc.openapi.path-ant-pattern=/api/**" >> $SVC_HOME/application.properties
