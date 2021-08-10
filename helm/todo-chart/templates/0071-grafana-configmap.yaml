@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasource-config
+  namespace: monitoring
+data:
+  prometheus.yaml: |-
+    datasources:
+    - name: 'ds_prometheus'
+      type: 'prometheus'
+      access: 'proxy'
+      org_id: 1
+      url: "http://{{ .Values.prometheus.service.name }}.monitoring.svc.cluster.local:{{ .Values.prometheus.service.port }}/prometheus"
+      is_default: true
+      version: 1
+      editable: true
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards-config
+  namespace: monitoring
+data:
+  dashboards.yaml: |-
+    - name: 'default'
+      org_id: 1
+      folder: ''
+      type: 'file'
+      options:
+        path: '/var/lib/grafana/dashboards'

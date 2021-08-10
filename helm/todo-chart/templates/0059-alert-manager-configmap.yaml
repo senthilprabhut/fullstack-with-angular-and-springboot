@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: monitoring
+  labels:
+    app: {{ .Values.alertmanager.service.name }}  
+data:
+  config.yml: |-
+    global:
+    templates:
+    - '/etc/alertmanager/*.tmpl'
+    route:
+      receiver: email-notification
+      group_by: ['alertname', 'priority']
+      group_wait: 10s
+      repeat_interval: 30m
+      routes:
+        - receiver: slack-notification
+        # Send severity=slack alerts to slack.
+          match:
+            severity: slack
+          group_wait: 10s
+          repeat_interval: 1m
+
+    receivers:
+    - name: email-notification
+      email_configs:
+      - to: senthilprabhut@yahoo.com
+        send_resolved: false
+        from: alert-monitor@todoapp.com
+        smarthost: smtp.eample.com:25
+        require_tls: false
+    - name: slack-notification
+      slack_configs:
+      - api_url: {{ .Values.alertmanager.service.slackWebhook }}
+        channel: '#kubernetes'

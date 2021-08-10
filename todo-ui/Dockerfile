@@ -35,6 +35,8 @@ COPY --from=build-step /angular-workdir/dist/todo /usr/share/nginx/html
 # Substitue. Nginx start is written into run.sh helself
 RUN echo "mainFileName=\"\$(ls /usr/share/nginx/html/main*.js)\" && \
           envsubst '\$BACKEND_API_URL ' < \${mainFileName} > main.tmp && \
+		  mv main.tmp  \${mainFileName} && \
+		  envsubst '\$OAUTH_CLIENT_ID ' < \${mainFileName} > main.tmp && \
           mv main.tmp  \${mainFileName} && nginx -g 'daemon off;'" > run.sh
 
 ARG BRANCH=unknown

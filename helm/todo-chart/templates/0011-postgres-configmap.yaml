@@ -8,3 +8,14 @@ data:
   POSTGRES_DB: todo-service
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: password
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-config
+  labels:
+    app: {{ .Values.postgres.service.name }}
+data:
+  create-database.sql: |-
+    CREATE DATABASE "todo-service";

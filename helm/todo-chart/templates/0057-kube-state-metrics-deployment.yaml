@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.kubestate.service.name }}
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: {{ .Values.kubestate.service.name }}
+    app.kubernetes.io/version: {{ .Values.kubestate.image.tag }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.kubestate.service.name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Values.kubestate.service.name }}
+        app.kubernetes.io/version: {{ .Values.kubestate.image.tag }}
+    spec:
+      nodeSelector:
+        kubernetes.io/os: linux
+      serviceAccountName: {{ .Values.kubestate.service.name }}      
+      containers:
+      - name: {{ .Values.kubestate.service.name }}
+        image: {{ .Values.kubestate.image.repository }}:{{ .Values.kubestate.image.tag }}
+        ports:
+        - containerPort: {{ .Values.kubestate.service.port }}
+          name: http-metrics
+        - containerPort: {{ .Values.kubestate.service.telemetryPort }}
+          name: telemetry
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: {{ .Values.kubestate.service.port }}
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.kubestate.service.telemetryPort }}
+          initialDelaySeconds: 5
+          timeoutSeconds: 5

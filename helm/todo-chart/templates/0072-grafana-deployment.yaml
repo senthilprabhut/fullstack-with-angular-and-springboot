@@ -1,0 +1,103 @@
+# https://devopscube.com/setup-grafana-kubernetes/
+# https://www.lisenet.com/2021/install-and-configure-grafana-on-kubernetes/
+# https://ops.tips/blog/initialize-grafana-with-preconfigured-dashboards/#configuring-prometheus
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: k3d-grafana-pv
+  namespace: monitoring
+  labels:
+    app: {{ .Values.grafana.service.name }}
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 200Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: {{ .Values.grafana.service.dashboardPath }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: k3d-grafana-pvc
+  namespace: monitoring
+  labels:
+    app: {{ .Values.grafana.service.name }}
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Mi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.grafana.service.name }}
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.grafana.service.name }}
+  template:
+    metadata:
+      name: {{ .Values.grafana.service.name }}
+      labels:
+        app: {{ .Values.grafana.service.name }}
+    spec:
+      containers:
+      - name: {{ .Values.grafana.service.name }}
+        image: "{{ .Values.grafana.image.repository }}:{{ .Values.grafana.image.tag }}"
+        env:
+        - name: GF_SERVER_SERVE_FROM_SUB_PATH
+          value: "true"
+        - name: GF_SERVER_ROOT_URL
+          value: "/grafana/"
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          value: {{ .Values.grafana.credentials.password }}
+        - name: GF_USERS_ALLOW_SIGN_UP
+          value: "false"
+        - name: GF_PATHS_PROVISIONING
+          value: "/etc/grafana/provisioning"
+        ports:
+        - containerPort: {{ .Values.grafana.service.port }}
+          protocol: TCP
+        resources:
+          requests:
+            memory: 500M
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        volumeMounts:
+          - mountPath: /var/lib/grafana
+            name: grafana-storage-volume
+          - mountPath: /var/lib/grafana/dashboards
+            name: grafana-dashboard-file-volume
+          - mountPath: /etc/grafana/provisioning/datasources
+            name: grafana-datasources-volume
+            readOnly: false
+          - mountPath: /etc/grafana/provisioning/dashboards
+            name: grafana-dashboards-volume
+            readOnly: false
+      volumes:
+        - name: grafana-storage-volume
+          emptyDir: {}
+        - name: grafana-datasources-volume
+          configMap:
+              defaultMode: 420
+              name: grafana-datasource-config
+        - name: grafana-dashboards-volume
+          configMap:
+              defaultMode: 420
+              name: grafana-dashboards-config
+        - name: grafana-dashboard-file-volume
+          persistentVolumeClaim:
+            claimName: k3d-grafana-pvc

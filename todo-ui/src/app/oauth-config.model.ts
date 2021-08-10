@@ -13,7 +13,7 @@ export const oauthConfig: AuthConfig = {
   postLogoutRedirectUri: window.location.origin + '/logout',
 
   // Registered ClientID in the Authorization Server. No Client Secret Required
-  clientId: '0oa3e4kbo2qZReMi34x7',
+  clientId: '${OAUTH_CLIENT_ID}',
 
   // Use Authorization Code with PKCE
   responseType: 'code',

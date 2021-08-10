@@ -12,11 +12,11 @@ docker-compose down
 # K3D Instructions
 
 ```shell
-mkdir /tmp/k3dvol/postgres
-mkdir /tmp/k3dvol/postgresinit
-cp ./todo-project/create-database.sql /tmp/k3dvol/postgresinit
+mkdir /tmp/k3dvol/postgresdata
+mkdir /tmp/k3dvol/dashboards
+cp monitoring/grafana/provisioning/dashboard/*.json /tmp/k3dvol/dashboards
 
-k3d cluster create todo-cluster -p 4200:80@loadbalancer --api-port 6550 --volume /tmp/k3dvol/postgres:/tmp/k3dvol/postgres --volume /tmp/k3dvol/postgresinit:/tmp/k3dvol/postgresinit  --servers 1 --agents 2
+k3d cluster create todo-cluster -p 4200:80@loadbalancer --api-port 6550 --volume /tmp/k3dvol:/tmp/k3dvol --servers 1 --agents 1
 
 kubectl config use-context k3d-todo-cluster
 kubectl create ns monitoring
@@ -32,19 +32,15 @@ helm install todo ./todo-chart --namespace default --wait --timeout 300s
 helm uninstall todo
 ```
 
-### Helm - prometheus, grafana
+### Helm - prometheus, alert manager, grafana
 Now that our pods are running, we have the option to use the Prometheus dashboard right from our local machine. This is done by using the following command:
 ```shell
-kubectl port-forward -n monitor prometheus-prometheus-operator-prometheus-0 9090
+kubectl port-forward -n monitoring prometheus 9090
 ```
-Now visit http://127.0.0.1:9090 to access the Prometheus dashboard.
+Now visit http://127.0.0.1:9090 to access the Prometheus dashboard. Otherwise, you can access the dashboard via http://localhost:4200/prometheus
+You can visit http://localhost:4200/alerts to access Alert Manager dashboard.
+Visit http://127.0.0.1:3000 to access Grafana dashboards. Use the `admin`/`password` combination to login.
 
-Same as Prometheus, we can use this command to make the Grafana dashboard accessible:
-```shell
-kubectl get pods -o wide | grep Grafana
-kubectl port-forward -n monitor prometheus-operator-grafana-88648f94b-5wfp9  3000
-```
-Now visit http://127.0.0.1:3000 to access Grafana dashboards. Use the `admin`/`password` combination to login.
 
 # Note about resolving angular app running on nginx
 Reference: https://stackoverflow.com/questions/65766633/call-to-api-from-angular-in-nginx-does-not-resolve-docker-service-name

@@ -30,39 +30,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 100Mi
-
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: k3d-postgres-scripts-pv
-  labels:
-    app: {{ .Values.postgres.service.name }}
-    type: local
-spec:
-  storageClassName: manual
-  capacity:
-    storage: 50Mi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: {{ .Values.postgres.service.initPath }}
-
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: k3d-postgres-scripts-pvc
-  labels:
-    app: {{ .Values.postgres.service.name }}
-spec:
-  storageClassName: manual
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Mi
+      storage: 500Mi
 
 ---
 apiVersion: v1
@@ -102,8 +70,9 @@ spec:
           persistentVolumeClaim:
             claimName: k3d-postgres-pvc
         - name: pv-init
-          persistentVolumeClaim:
-            claimName: k3d-postgres-scripts-pvc
+          configMap:
+            defaultMode: 420
+            name: postgres-init-config
       containers:
         - name: {{ .Values.postgres.service.name }}
           image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
@@ -127,9 +96,6 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: password
-#          envFrom:
-#            - configMapRef:
-#                name: postgres-config
           volumeMounts:
             - name: pv-init
               mountPath: /docker-entrypoint-initdb.d/

@@ -1,0 +1,54 @@
+# https://devopscube.com/alert-manager-kubernetes-guide/
+# https://www.puppeteers.net/blog/making-prometheus-and-alertmanager-work-behind-a-reverse-proxy/
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.alertmanager.service.name }}
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.alertmanager.service.name }}
+  template:
+    metadata:
+      name: {{ .Values.alertmanager.service.name }}
+      labels:
+        app: {{ .Values.alertmanager.service.name }}
+    spec:
+      containers:
+      - name: {{ .Values.alertmanager.service.name }}
+        image: {{ .Values.alertmanager.image.repository }}:{{ .Values.alertmanager.image.tag }}
+        args:
+          - "--config.file=/etc/alertmanager/config.yml"
+          - "--storage.path=/alertmanager"
+          - "--web.external-url=http://localhost:4200/alerts"
+          - "--web.route-prefix=/alerts"
+        ports:
+        - name: alertmanager
+          containerPort: {{ .Values.alertmanager.service.port }}
+        resources:
+            requests:
+              cpu: 500m
+              memory: 500M
+            limits:
+              cpu: 1
+              memory: 1Gi
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/alertmanager
+        - name: templates-volume
+          mountPath: /etc/alertmanager-templates
+        - name: alertmanager
+          mountPath: /alertmanager
+      volumes:
+      - name: config-volume
+        configMap:
+          defaultMode: 420
+          name: alertmanager-config
+      - name: templates-volume
+        configMap:
+          defaultMode: 420
+          name: alertmanager-templates
+      - name: alertmanager
+        emptyDir: {}

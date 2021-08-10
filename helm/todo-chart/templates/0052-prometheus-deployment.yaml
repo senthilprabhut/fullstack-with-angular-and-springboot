@@ -22,8 +22,10 @@ spec:
             - "--storage.tsdb.retention.time=12h"
             - "--config.file=/etc/prometheus/prometheus.yml"
             - "--storage.tsdb.path=/prometheus/"
+            - "--web.external-url=/prometheus"
           ports:
             - containerPort: {{ .Values.prometheus.service.port }}
+              protocol: TCP
           resources:
             requests:
               cpu: 500m

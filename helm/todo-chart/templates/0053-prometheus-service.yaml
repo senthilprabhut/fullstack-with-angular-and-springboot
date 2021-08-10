@@ -9,11 +9,26 @@ metadata:
   #     prometheus.io/scrape: 'true'
   #     prometheus.io/port: {{ .Values.prometheus.service.port }}
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
   - name: {{ .Values.prometheus.service.name }}-http
     port: {{ .Values.prometheus.service.port }}
+    protocol: TCP
     targetPort: {{ .Values.prometheus.service.port }}
-    nodePort: 30000
   selector:
     app: {{ .Values.prometheus.service.name }}
+
+---
+# Required in the default namespace to redirect to monitoring namespace
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.prometheus.service.name }}
+  labels:
+    app: {{ .Values.prometheus.service.name }}
+spec:
+  type: ExternalName
+  externalName: {{ .Values.prometheus.service.name }}.monitoring.svc.cluster.local
+  ports:
+  - port: {{ .Values.prometheus.service.port }}
+    targetPort: {{ .Values.prometheus.service.port }}

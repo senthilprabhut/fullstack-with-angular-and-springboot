@@ -1,12 +1,10 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: traefik-ingress
+  name: todo-traefik-ingress
   annotations:
-    ingress.kubernetes.io/ssl-redirect: "false"
     kubernetes.io/ingress.class: traefik
-    # traefik.ingress.kubernetes.io/rewrite-target: {{ .targetPath }}
-    # nginx.ingress.kubernetes.io/rewrite-target: /$1
+    ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   rules:
     - http:
@@ -32,3 +30,17 @@ spec:
                 name: {{ .Values.prometheus.service.name }}
                 port:
                   number: {{ .Values.prometheus.service.port }}
+          - path: /grafana
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.grafana.service.name }}
+                port:
+                  number: {{ .Values.grafana.service.port }}
+          - path: /alerts
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.alertmanager.service.name }}
+                port:
+                  number: {{ .Values.alertmanager.service.port }}

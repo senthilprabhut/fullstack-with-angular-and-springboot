@@ -8,7 +8,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Values.ui.service.name }}  
+      app: {{ .Values.ui.service.name }}
   template:
     metadata:
       labels:
@@ -23,3 +23,8 @@ spec:
           env:
             - name: BACKEND_API_URL
               value: {{ .Values.ui.service.backendUrl }}
+            - name: OAUTH_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: todo-ui-secret
+                  key: client-id
