@@ -19,7 +19,6 @@ cp monitoring/grafana/provisioning/dashboard/*.json /tmp/k3dvol/dashboards
 k3d cluster create todo-cluster -p 4200:80@loadbalancer --api-port 6550 --volume /tmp/k3dvol:/tmp/k3dvol --servers 1 --agents 1
 
 kubectl config use-context k3d-todo-cluster
-kubectl create ns monitoring
 
 k3d cluster delete todo-cluster
 ```
@@ -43,7 +42,7 @@ kubectl port-forward -n monitoring prometheus 9090
 ```
 Now visit http://127.0.0.1:9090 to access the Prometheus dashboard. Otherwise, you can access the dashboard via http://localhost:4200/prometheus
 You can visit http://localhost:4200/alerts to access Alert Manager dashboard.
-Visit http://127.0.0.1:3000 to access Grafana dashboards. Use the `admin`/`password` combination to login.
+Visit http://127.0.0.1:4200/grafana to access Grafana dashboards. Use the `admin`/`password` combination to login.
 
 
 # Note about resolving angular app running on nginx
