@@ -25,6 +25,10 @@ k3d cluster delete todo-cluster
 ```
 
 # Helm Instructions
+Folling values need to be set before installing the helm charts
+- `slackWebhook` in `values.yaml`
+- `client-id` and `client-secret` in `0021-todo-secret.yaml`
+- `client-id` in `0033-todo-ui-secret.yaml`
 
 ```shell
 helm install todo ./todo-chart --namespace default --wait --timeout 300s

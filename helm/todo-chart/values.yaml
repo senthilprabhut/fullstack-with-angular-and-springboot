@@ -94,7 +94,7 @@ alertmanager:
   service:
     name: alertmanager
     port: 9093
-    slackWebhook: https://hooks.slack.com/services/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
+    slackWebhook: CHANGE_SLACK_WEBHOOK
 
 # grafana
 grafana:
